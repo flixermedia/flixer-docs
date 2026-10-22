@@ -7,8 +7,8 @@ const config: Config = {
   tagline: 'Self-hosted media streaming for movies, TV and music',
   favicon: 'img/favicon.png',
 
-  url: process.env.DOCS_URL ?? 'https://flixermedia.github.io',
-  baseUrl: process.env.DOCS_BASE_URL ?? '/flixer-docs/',
+  url: process.env.DOCS_URL ?? 'https://flixer.github.io',
+  baseUrl: process.env.DOCS_BASE_URL ?? '/docs/',
   organizationName: 'flixermedia',
   projectName: 'flixer-docs',
   trailingSlash: false,
