@@ -1,0 +1,207 @@
+/*
+ * Flixer theme: mirrors the design tokens in flixer-web/src/tailwind.css so the docs
+ * look like the app. Dark is the default; light follows html.light's palette.
+ */
+:root {
+  --flixer-background: #f5f4fa;
+  --flixer-surface: #ffffff;
+  --flixer-border: #dcd9e8;
+  --flixer-primary: #6a3bc9;
+  --flixer-secondary: #4b5ed6;
+  --flixer-accent: #6d3fd0;
+  --flixer-cyan: #0e8fa0;
+  --flixer-text: #1c1b29;
+  --flixer-muted: #5f5d72;
+
+  --ifm-font-family-base: 'Segoe UI', system-ui, sans-serif;
+  --ifm-color-primary: var(--flixer-primary);
+  --ifm-color-primary-dark: #6035b6;
+  --ifm-color-primary-darker: #5a32ad;
+  --ifm-color-primary-darkest: #4a2a8e;
+  --ifm-color-primary-light: #7645d7;
+  --ifm-color-primary-lighter: #8256dc;
+  --ifm-color-primary-lightest: #a789ff;
+  --ifm-background-color: var(--flixer-background);
+  --ifm-background-surface-color: var(--flixer-surface);
+  --ifm-font-color-base: var(--flixer-text);
+  --ifm-font-color-secondary: var(--flixer-muted);
+  --ifm-color-emphasis-300: var(--flixer-border);
+  --ifm-link-color: var(--flixer-primary);
+  --ifm-code-font-size: 92%;
+  --ifm-global-radius: 0.5rem;
+  --ifm-navbar-background-color: color-mix(in srgb, var(--flixer-surface) 85%, transparent);
+  --ifm-footer-background-color: var(--flixer-surface);
+  --docusaurus-highlighted-code-line-bg: rgba(118, 69, 215, 0.12);
+}
+
+[data-theme='dark'] {
+  --flixer-background: #080811;
+  --flixer-surface: #14131d;
+  --flixer-border: #292735;
+  --flixer-primary: #7645d7;
+  --flixer-secondary: #5366e7;
+  --flixer-accent: #a789ff;
+  --flixer-cyan: #4bd9e8;
+  --flixer-text: #f4f2fb;
+  --flixer-muted: #9492a4;
+
+  --ifm-color-primary: #a789ff;
+  --ifm-color-primary-dark: #8f6bff;
+  --ifm-color-primary-darker: #8259ff;
+  --ifm-color-primary-darkest: #5f2fff;
+  --ifm-color-primary-light: #bfa7ff;
+  --ifm-color-primary-lighter: #cab8ff;
+  --ifm-color-primary-lightest: #e3d9ff;
+  --ifm-link-color: var(--flixer-accent);
+  --ifm-navbar-background-color: color-mix(in srgb, var(--flixer-surface) 80%, transparent);
+  --ifm-toc-border-color: var(--flixer-border);
+  --ifm-table-stripe-background: rgba(255, 255, 255, 0.025);
+  --ifm-table-border-color: var(--flixer-border);
+  --ifm-code-background: #1c1a28;
+  --docusaurus-highlighted-code-line-bg: rgba(167, 137, 255, 0.16);
+}
+
+html {
+  scroll-padding-top: calc(var(--ifm-navbar-height) + 1rem);
+}
+
+[data-theme='dark'] body {
+  background-image:
+    radial-gradient(60rem 30rem at 85% -10%, rgba(118, 69, 215, 0.18), transparent 60%),
+    radial-gradient(45rem 25rem at -5% 0%, rgba(83, 102, 231, 0.12), transparent 60%);
+  background-attachment: fixed;
+}
+
+.navbar {
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--flixer-border);
+  box-shadow: none;
+}
+
+.navbar__title {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.navbar__logo img {
+  border-radius: 0.4rem;
+}
+
+.menu__link--active:not(.menu__link--sublist) {
+  background: color-mix(in srgb, var(--flixer-primary) 18%, transparent);
+  font-weight: 600;
+}
+
+.theme-doc-sidebar-container {
+  border-right: 1px solid var(--flixer-border) !important;
+}
+
+.footer {
+  border-top: 1px solid var(--flixer-border);
+}
+
+table {
+  display: table;
+  width: 100%;
+  border-radius: var(--ifm-global-radius);
+  overflow: hidden;
+}
+
+table th {
+  background: color-mix(in srgb, var(--flixer-primary) 12%, transparent);
+  text-align: left;
+}
+
+pre,
+[class*='codeBlockContainer'] {
+  border: 1px solid var(--flixer-border);
+  border-radius: var(--ifm-global-radius);
+  box-shadow: none !important;
+}
+
+.theme-admonition {
+  border-radius: var(--ifm-global-radius);
+  border-width: 0 0 0 4px;
+}
+
+/* Landing page */
+.hero-flixer {
+  padding: 5rem 1rem 4rem;
+  text-align: center;
+}
+
+.hero-flixer h1 {
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(110deg, #a789ff 10%, #4bd9e8 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-flixer p {
+  color: var(--flixer-muted);
+  font-size: 1.2rem;
+  max-width: 40rem;
+  margin: 0 auto 2rem;
+}
+
+.hero-flixer img {
+  width: 5.5rem;
+  height: 5.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem 4rem;
+}
+
+.card-flixer {
+  display: block;
+  padding: 1.25rem;
+  border: 1px solid var(--flixer-border);
+  border-radius: 0.75rem;
+  background: var(--flixer-surface);
+  color: inherit;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+
+.card-flixer:hover {
+  border-color: var(--flixer-primary);
+  transform: translateY(-2px);
+  text-decoration: none;
+  color: inherit;
+}
+
+.card-flixer h3 {
+  margin-bottom: 0.4rem;
+  color: var(--flixer-accent);
+}
+
+.card-flixer p {
+  margin: 0;
+  color: var(--flixer-muted);
+  font-size: 0.92rem;
+}
+
+.card-flixer .tag {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--flixer-cyan);
+}
