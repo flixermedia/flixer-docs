@@ -58,3 +58,18 @@ The bundled proxy listens on plain HTTP. Terminate TLS in front of it and set `F
 
 - `docker-compose.smb.yml` adds mount support for network shares.
 - `docker-compose.observability.yml` adds Loki, Alloy and Grafana for logs.
+
+## Updating from the dashboard
+
+Admin → Updates shows the running version of the API, web, streamer and indexer next to the newest GitHub release of each, and can update everything with one click. It is opt-in because it needs the Docker socket:
+
+1. Put a long random `WATCHTOWER_TOKEN=...` in `.env`.
+2. Start the stack with `docker compose --profile updates up -d`.
+
+Only [Watchtower](https://github.com/nicholas-fedor/watchtower) mounts `/var/run/docker.sock`; Flixer just calls its HTTP API. Watchtower touches only the services labelled `com.centurylinklabs.watchtower.enable`, and only when an admin presses **Update all** (or turns on automatic updates, which are off by default).
+
+An update first writes a `pg_dump` of the database to `$DATA_PATH/backups` (the latest 5 are kept) and is aborted if the backup fails. Containers are then recreated from the newest `:latest` images, so the dashboard is unavailable for a minute while the API restarts. A run counts as successful once every component is back on the release it was updated to, and is reported as failed after 15 minutes otherwise.
+
+There is no automatic rollback: Watchtower cannot pin an older tag. To go back, set the image tags in `docker-compose.yml` to the previous `vX.Y.Z` and run `docker compose up -d`; restore the database from a backup with `pg_restore` if a release changed the schema.
+
+Images built before this feature do not report their version, so those components show as not reachable until they are updated manually once.
