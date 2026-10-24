@@ -70,7 +70,7 @@ Only the [flixer-updater](https://github.com/flixermedia/flixer-updater) sidecar
 
 An update runs these steps, shown live in the dashboard:
 
-1. A `pg_dump` of the database is written to `$DATA_PATH/backups` (the latest 5 are kept). If it fails, nothing is changed.
+1. A `pg_dump` of the database (using the database URL Flixer is configured with) is written to `$DATA_PATH/backups` (the latest 5 are kept). If it fails, nothing is changed.
 2. The new release of each outdated component is pinned in the updater's state volume (`versions.env`, read through the `${*_VERSION:-latest}` image tags) and the images are pulled.
 3. Services are recreated one at a time (streamer, indexer, web, API) and each must become healthy.
 4. If one fails, the previous releases are restored automatically and the run is reported as rolled back. A component whose previous version was not a known release (for example a `latest` or dev build) cannot be restored and is reported.
