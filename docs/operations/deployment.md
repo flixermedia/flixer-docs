@@ -63,13 +63,21 @@ The bundled proxy listens on plain HTTP. Terminate TLS in front of it and set `F
 
 Admin → Updates shows the running version of the API, web, streamer and indexer next to the newest GitHub release of each, and can update everything with one click. It is opt-in because it needs the Docker socket:
 
-1. Put a long random `WATCHTOWER_TOKEN=...` in `.env`.
+1. Put a random `UPDATER_TOKEN=...` (16+ characters) in `.env`.
 2. Start the stack with `docker compose --profile updates up -d`.
 
-Only [Watchtower](https://github.com/nicholas-fedor/watchtower) mounts `/var/run/docker.sock`; Flixer just calls its HTTP API. Watchtower touches only the services labelled `com.centurylinklabs.watchtower.enable`, and only when an admin presses **Update all** (or turns on automatic updates, which are off by default).
+Only the [flixer-updater](https://github.com/flixermedia/flixer-updater) sidecar mounts `/var/run/docker.sock`; Flixer just calls its token-protected HTTP API on the internal network. It acts only when an admin presses **Update all** (or turns on automatic updates, which are off by default). The project folder is mounted into it at the same path as on the host (`PROJECT_DIR`, default the current directory) so it can run `docker compose`.
 
-An update first writes a `pg_dump` of the database to `$DATA_PATH/backups` (the latest 5 are kept) and is aborted if the backup fails. Containers are then recreated from the newest `:latest` images, so the dashboard is unavailable for a minute while the API restarts. A run counts as successful once every component is back on the release it was updated to, and is reported as failed after 15 minutes otherwise.
+An update runs these steps, shown live in the dashboard:
 
-There is no automatic rollback: Watchtower cannot pin an older tag. To go back, set the image tags in `docker-compose.yml` to the previous `vX.Y.Z` and run `docker compose up -d`; restore the database from a backup with `pg_restore` if a release changed the schema.
+1. A `pg_dump` of the database is written to `$DATA_PATH/backups` (the latest 5 are kept). If it fails, nothing is changed.
+2. The new release of each outdated component is pinned in the updater's state volume (`versions.env`, read through the `${*_VERSION:-latest}` image tags) and the images are pulled.
+3. Services are recreated one at a time (streamer, indexer, web, API) and each must become healthy.
+4. If one fails, the previous releases are restored automatically and the run is reported as rolled back. A component whose previous version was not a known release (for example a `latest` or dev build) cannot be restored and is reported.
+5. The proxy is restarted so it finds the new containers.
+
+The dashboard is unavailable for a minute while the API restarts. Restore the database from a backup with `pg_restore` if a release changed the schema.
+
+Pinned versions persist, so a manual `docker compose up` without the updater's `versions.env` falls back to `latest`. The updater cannot update itself: pull a new `flixer-updater` image manually.
 
 Images built before this feature do not report their version, so those components show as not reachable until they are updated manually once.
