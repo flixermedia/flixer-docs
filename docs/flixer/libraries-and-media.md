@@ -73,7 +73,7 @@ sequenceDiagram
 `src/api/networkShares/*`, table `network_shares`, admin-only (`/api/admin/network-shares`).
 
 - Input: `name`, `host` (hostname/IP), `share` (name only, no slashes), optional `username`, `domain` (needs a username), `password`, `readOnly` (default true).
-- Passwords are encrypted with **AES-256-GCM**; the key is derived by HKDF-SHA256 from `STREAM_TOKEN_SECRET` (context `flixer:network-shares:v1`). If the secret changes the password cannot be decrypted and the share reports an error until re-entered.
+- Passwords are encrypted with **AES-256-GCM**; the key is derived by HKDF-SHA256 from `APP_SECRET` (context `flixer:network-shares:v1`). If the secret changes the password cannot be decrypted and the share reports an error until re-entered.
 - **Linux:** `mount -t cifs` under `SMB_MOUNT_DIR/<share id>` (needs root or `SYS_ADMIN`; the password is passed via the `PASSWD` env var, never on the command line). **macOS:** `mount_smbfs`. **Windows:** `net use` and a UNC path.
 - Create/update connects first and fails with `400` (secret-redacted message) if it cannot; unique-name conflict → `409`; deleting a share used by a library → `409`.
 - Status per share: `connecting`, `connected`, `error`. On startup shares reconnect in the background. `POST /:id/reconnect` retries.

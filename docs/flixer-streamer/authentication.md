@@ -6,7 +6,7 @@ description: HS256 stream-token requirements, encrypted locators, expiry checks,
 
 # Authentication
 
-`internal/token/token.go` validates stream tokens and decrypts the file locator. The service does not authenticate end users or issue playback tokens; a trusted Flixer integration must authorize the user and provide a token that satisfies this contract. The shared secret is configured as `STREAM_TOKEN_SECRET` (or the legacy fallback `JWT_SECRET`) and must be at least 32 bytes.
+`internal/token/token.go` validates stream tokens and decrypts the file locator. The service does not authenticate end users or issue playback tokens; a trusted Flixer integration must authorize the user and provide a token that satisfies this contract. The shared secret is configured as `APP_SECRET` (or the legacy fallback `JWT_SECRET`) and must be at least 32 bytes.
 
 ## Stream token
 

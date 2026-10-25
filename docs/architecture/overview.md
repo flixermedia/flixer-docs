@@ -47,8 +47,8 @@ flowchart LR
 
 - **Browser to API**: REST under `/api` plus WebSockets at `/api/live` and `/api/logs/stream`.
 - **Browser to streamer**: direct HTTP to `/stream`, `/info`, `/hls`, `/lyrics`, `/subtitles` using a stream token issued by the API. Bytes never pass through the API.
-- **Streamer to API**: fetches library roots and paths, signing the request with `STREAM_TOKEN_SECRET`.
-- **Indexer and API**: both directions are signed with `STREAM_TOKEN_SECRET`. The API controls scans and queues; the indexer reads libraries from the API and writes items back, with flixer applying backpressure (`INDEXER_MAX_WRITES`).
+- **Streamer to API**: fetches library roots and paths, signing the request with `APP_SECRET`.
+- **Indexer and API**: both directions are signed with `APP_SECRET`. The API controls scans and queues; the indexer reads libraries from the API and writes items back, with flixer applying backpressure (`INDEXER_MAX_WRITES`).
 - **Redis**: only the indexer's task queue.
 
 ## Design principles

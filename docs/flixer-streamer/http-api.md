@@ -8,7 +8,7 @@ description: Implemented streamer routes, authentication, query parameters, resp
 
 Routes are implemented in `internal/httpserver`. Media and playback-information routes require a valid token in the URL path. The admin routes use a separate derived bearer key. There is no playback-info issuance endpoint in this service.
 
-Successful private media responses use `Cache-Control: private, no-store`; information and error responses use `no-store`. Error bodies are JSON of the form `{"error":"code","message":"description"}`. Unsupported routes return the standard HTTP 404 response. If `ALLOWED_ORIGINS` is non-empty, a request with an `Origin` header must match one of its entries exactly. Preflight `OPTIONS` requests receive `204` and advertise `GET, HEAD, OPTIONS` and `Range, If-Range, If-Modified-Since` headers.
+Playback and subtitle responses use `Cache-Control: private, no-store`; trickplay indexes and sheets use private five-minute and one-day caching respectively. Information and error responses use `no-store`. Error bodies are JSON of the form `{"error":"code","message":"description"}`. Unsupported routes return the standard HTTP 404 response. If `ALLOWED_ORIGINS` is non-empty, a request with an `Origin` header must match one of its entries exactly. Preflight `OPTIONS` requests receive `204` and advertise `GET, HEAD, OPTIONS` and `Range, If-Range, If-Modified-Since` headers.
 
 ## Route reference
 
@@ -22,6 +22,8 @@ Successful private media responses use `Cache-Control: private, no-store`; infor
 | `GET /lyrics/{token}` | Stream token naming an audio file | None | Neighboring `.lrc` content as `text/plain; charset=utf-8`. |
 | `GET /subtitles/{token}` | Stream token naming a video file | None | JSON list of matching sidecar subtitle tracks. |
 | `GET /subtitles/{token}?file={filename}` | Stream token naming a video file | `file` | Matching `.srt` or `.vtt` sidecar converted/passed through as WebVTT. |
+| `GET`, `HEAD /trickplay/{token}/index.json` | Stream token | None | Per-source trickplay index JSON. `private, max-age=300`. |
+| `GET`, `HEAD /trickplay/{token}/{n}.jpg` | Stream token | None | JPEG contact sheet, with HTTP range/conditional support and `private, max-age=86400`. |
 | `GET /admin/sessions` | `Authorization: Bearer {admin-key}` | None | JSON snapshot of FFmpeg availability, configured limit, active process count, and tracked sessions. |
 | `DELETE /admin/sessions/{id}` | `Authorization: Bearer {admin-key}` | None | Cancels the active session and returns `204`; missing/expired session returns `404`. |
 
@@ -63,7 +65,7 @@ Example response from `/info/{token}` (shape; actual values come from FFprobe):
 | `400` | Unsupported/invalid `height` or invalid `start` on stream/info/HLS. |
 | `401` | Missing, malformed, invalid, expired, or undecryptable stream token; missing/incorrect admin bearer key. |
 | `403` | An unlisted browser origin when CORS origins are configured. |
-| `404` | Unavailable/disallowed media, missing lyrics/subtitle file, unknown HLS route/segment, or unknown admin session. |
+| `404` | Unavailable/disallowed media, missing lyrics/subtitle/trickplay file (`trickplay_not_available`), unknown HLS route/segment, or unknown admin session. |
 | `405` | Method not allowed; response includes `Allow`. |
 | `422` | HLS requested for media with unknown/non-positive duration. |
 | `501` | Required transcoder unavailable, or seek/height requested when FFmpeg is disabled. |

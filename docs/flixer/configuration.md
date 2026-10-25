@@ -17,7 +17,7 @@ flixer is configured through **environment variables** (loaded from the process 
 | `PORT` | `8083` | No | HTTP port. The Docker image sets `8081`. |
 | `NODE_ENV` | `development` | No | `production` switches logging layout/streams and disables the dev port-killer. |
 | `JWT_SECRET` | – | **Yes** | HMAC secret (≥ 32 bytes) signing access tokens, passkey second-factor tickets and e-mail verification tokens. |
-| `STREAM_TOKEN_SECRET` | – | **Yes** (to play/stream/index) | Secret (≥ 32 bytes) **shared with flixer-streamer and flixer-indexer**. Signs stream tokens, indexer and streamer request signatures, derives the streamer admin key, and is the key source for encrypting network-share passwords. Changing it invalidates saved share passwords. |
+| `APP_SECRET` | – | **Yes** (to play/stream/index) | Secret (≥ 32 bytes) **shared with flixer-streamer and flixer-indexer**. Signs stream tokens, indexer and streamer request signatures, derives the streamer admin key, and is the key source for encrypting network-share passwords. Changing it invalidates saved share passwords. |
 | `APP_URL` | `https://localhost:5173` | No | Public web URL; used to build links in e-mails (`/verify-email?token=`). |
 | `STREAMER_PUBLIC_URL` | empty | No | Prefix for stream URLs returned to clients. Empty = relative URL (`/stream/<token>`), so the browser reaches the streamer through the same origin (proxy / Vite dev server). |
 | `STREAMER_INTERNAL_URL` | `http://localhost:8091` | No | Where flixer reaches the streamer admin API (list/cancel sessions). |
@@ -42,7 +42,7 @@ SMTP is **not** configured through environment variables – it lives in the `sm
 ```bash
 DATABASE_URL=postgres://flixer:flixer@localhost:5432/flixer
 JWT_SECRET=change-me-to-a-long-random-string-of-32+bytes
-STREAM_TOKEN_SECRET=another-long-random-string-shared-with-streamer
+APP_SECRET=another-long-random-string-shared-with-streamer
 APP_URL=https://localhost:5173
 STREAM_MEDIA_ROOT=["D:/Media/Movies","D:/Media/Shows"]
 LOG_DIR=../flixer-data/logs

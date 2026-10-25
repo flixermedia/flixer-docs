@@ -16,7 +16,7 @@ description: Running the flixer backend natively, npm scripts, tests, code conve
 
 ```bash
 npm install
-cp .env.example .env     # set DATABASE_URL, JWT_SECRET, STREAM_TOKEN_SECRET (>= 32 bytes)
+cp .env.example .env     # set DATABASE_URL, JWT_SECRET, APP_SECRET (>= 32 bytes)
 npm start                # barrels + `tsed dev` (Vite runtime) on PORT (default 8083)
 ```
 

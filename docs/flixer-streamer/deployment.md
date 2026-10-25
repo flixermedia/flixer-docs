@@ -20,7 +20,7 @@ The streamer is a single Go HTTP service. See `Dockerfile` for the maintained co
 From the repository root in PowerShell, set the required secret in the environment (use a random value of at least 32 bytes and the matching Flixer-side value):
 
 ```powershell
-$env:STREAM_TOKEN_SECRET = '<your-shared-random-secret>'
+$env:APP_SECRET = '<your-shared-random-secret>'
 $env:FLIXER_URL = 'http://localhost:8083'
 go build -o flixer-streamer.exe ./cmd/flixer-streamer
 .\flixer-streamer.exe
@@ -31,7 +31,7 @@ Install FFmpeg/FFprobe and ensure both commands are discoverable, or set their e
 ## Build and run on Linux
 
 ```sh
-export STREAM_TOKEN_SECRET='<your-shared-random-secret>'
+export APP_SECRET='<your-shared-random-secret>'
 export FLIXER_URL='http://localhost:8083'
 go build -o flixer-streamer ./cmd/flixer-streamer
 ./flixer-streamer
@@ -49,7 +49,7 @@ Build locally from the `flixer-streamer` repository:
 docker build -t flixer-streamer:local .
 ```
 
-Provide `STREAM_TOKEN_SECRET` and `FLIXER_URL` at runtime. Mount media read-only and ensure the Flixer-returned root paths match the container mount paths and are readable by the unprivileged user. The Dockerfile does not copy a `.env` file into the image. Do not mount or expose arbitrary filesystem paths beyond managed media roots.
+Provide `APP_SECRET` and `FLIXER_URL` at runtime. Mount media read-only and ensure the Flixer-returned root paths match the container mount paths and are readable by the unprivileged user. The Dockerfile does not copy a `.env` file into the image. Do not mount or expose arbitrary filesystem paths beyond managed media roots.
 
 ## Logs and health
 

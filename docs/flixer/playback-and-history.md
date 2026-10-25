@@ -36,14 +36,14 @@ Response:
 
 - `directPlay` is `false` only for `.mkv` (the streamer must remux/transcode).
 - `streamUrl` is prefixed with `STREAMER_PUBLIC_URL` (empty by default → same-origin relative URL, routed by the proxy to the streamer).
-- The token is an **HS256 JWT** valid **1 hour** with claims `iss: flixer`, `aud: flixer-streamer`, `sub`/`userId`, `mediaItemId`, `mediaSourceId`, `playSessionId`, `mediaLocator`, `iat`, `exp`, `jti`. Signed with `STREAM_TOKEN_SECRET` (≥ 32 bytes, otherwise issuing fails).
+- The token is an **HS256 JWT** valid **1 hour** with claims `iss: flixer`, `aud: flixer-streamer`, `sub`/`userId`, `mediaItemId`, `mediaSourceId`, `playSessionId`, `mediaLocator`, `iat`, `exp`, `jti`. Signed with `APP_SECRET` (≥ 32 bytes, otherwise issuing fails).
 - `mediaLocator` is `{rootId, relativePath}` encrypted with **AES-256-GCM** (key = SHA-256 over an AAD label + secret, 12-byte nonce, AAD `flixer-streamer:media-locator:v1`), so file paths never reach the client.
 
 Sample videos: `GET /api/playback/samples` scans every library folder for `.mp4/.webm/.mkv` files and `POST /api/playback/samples/:id/playback-info` issues tokens for them (id = first 16 hex chars of sha256 of `rootId/relativePath`).
 
 ## Active streams
 
-`GET /api/admin/streams` and `DELETE /api/admin/streams/:sessionId` proxy flixer-streamer's `/admin/sessions` (admin key derived from `STREAM_TOKEN_SECRET`; 5 s timeout; `502` unreachable/error, `504` timeout). Sessions are enriched with the user's `username` / `displayName`.
+`GET /api/admin/streams` and `DELETE /api/admin/streams/:sessionId` proxy flixer-streamer's `/admin/sessions` (admin key derived from `APP_SECRET`; 5 s timeout; `502` unreachable/error, `504` timeout). Sessions are enriched with the user's `username` / `displayName`.
 
 ## Watch progress and history
 
@@ -105,3 +105,15 @@ Subtitles are served to players by flixer-streamer (`/subtitles/...` is routed t
 ## Lyrics
 
 The flixer backend has **no lyrics endpoint**. Lyrics are served by flixer-streamer (`/lyrics/...`, proxied by nginx) – see the streamer docs.
+
+## Chapters and skippable segments
+
+`POST /api/playback/items/:id/playback-info` also returns `chapters` (`{title, startMs, endMs}`, from the container's chapter list, which the indexer's probe stage stores) and `segments` (`{type, startMs, endMs, source}`). The player draws chapter ticks on the seek bar and offers a "Skip Intro/Recap/Credits" button inside a segment, with an optional auto-skip (intros, recaps, previews and breaks; never credits).
+
+Segment types are `intro`, `recap`, `credits`, `preview` and `commercial`. One segment per type is returned, chosen by source priority:
+
+1. `manual`: set by an admin with `PUT /api/admin/media/items/:id/segments/:type` (`{startMs, endMs}`) and removed with `DELETE` on the same path.
+2. `skipme`: crowd-sourced timestamps from the SkipMe.db URL set under Admin → Providers (default `https://database.skipme.deno.net/v3`; empty disables lookups) (`POST /movies` with the series or movie ids, season/episode and file duration; the entry whose duration is within 5 s and with the most submissions wins). Failed or empty lookups are not retried for 24 hours.
+3. `chapter`: chapter titles matched against built-in patterns (for example "Opening", "Previously on", "Credits"). Computed on read, never stored.
+
+Items indexed before chapter support need a refresh to gain chapters.

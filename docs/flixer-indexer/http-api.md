@@ -10,7 +10,7 @@ The indexer listens on `PORT` (default `8092`). `GET /health` is the only unauth
 
 ## Authentication and flixer contract
 
-Both sides sign requests with `STREAM_TOKEN_SECRET` (or its `JWT_SECRET` fallback). The request carries `X-Indexer-Timestamp` (Unix seconds) and `X-Indexer-Signature` (hex HMAC-SHA256) over:
+Both sides sign requests with `APP_SECRET` (or its `JWT_SECRET` fallback). The request carries `X-Indexer-Timestamp` (Unix seconds) and `X-Indexer-Signature` (hex HMAC-SHA256) over:
 
 ```text
 flixer-indexer:v1:<timestamp>:<METHOD>:<URL path>:<hex SHA-256 of body>
@@ -24,10 +24,12 @@ The indexer reads `GET /api/indexer/libraries` as `{"libraries":[...]}` and `GET
 
 All request bodies below are JSON unless noted. Path identifiers are literal route parameters. In errors, common statuses include `400` for invalid input, `401` for invalid/missing signature, `413` for oversized body, `404` for missing resources, and `500` for internal failures.
 
+`POST /internal/scan` may include `"trickplayOnly": true` to backfill thumbnail sheets for video items. This walks the library and queues trickplay tasks without identifying items, updating scan progress, or pruning; the response keeps the usual queued/already-queued shape.
+
 | Method and path | Request | Successful response |
 | --- | --- | --- |
 | `GET /health` | None; open route. | `200 {"status":"ok","redis":true}`; `503 {"status":"unavailable","redis":false}` when Redis cannot be pinged. |
-| `POST /internal/scan` | `{ "libraryId": string, "force"?: boolean }` | New task: `202 {"libraryId":...,"queued":true,"alreadyQueued":false}`. Duplicate: `200` and `queued:false`, `alreadyQueued:true`. `400` if invalid JSON or missing ID; `404` if flixer has no matching library. |
+| `POST /internal/scan` | `{ "libraryId": string, "force"?: boolean, "trickplayOnly"?: boolean }` | New task: `202 {"libraryId":...,"queued":true,"alreadyQueued":false}`. Duplicate: `200` and `queued:false`, `alreadyQueued:true`. `400` if invalid JSON or missing ID; `404` if flixer has no matching library. |
 | `POST /internal/refresh` | `{ "libraryId": string, "path": string, "itemType": "movie"\|"series"\|"season"\|"episode"\|"album"\|"track"\|"video" }` | `202 {"queued":bool,"alreadyQueued":bool}`. Invalid fields produce `400`; unknown library produces `404`. Refresh work is forced by the worker regardless of the request's optional `force` field. |
 | `GET /internal/scans` | None. | `200 {"scans":[Scan...]}`; a scan has `libraryId`, `state`, `discovered`, `done`, `failed`, and optional `startedAt`, `finishedAt`, `error`. |
 | `GET /internal/stats` | None. | `200` with `queues` (queue counters and latency), `scans`, and, after settings load, `providers` and `enabledProviders`; `concurrency` is included when this process has workers. |
