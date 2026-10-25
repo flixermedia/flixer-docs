@@ -63,7 +63,7 @@ The bundled proxy listens on plain HTTP. Terminate TLS in front of it and set `F
 
 Admin → Updates shows the running version of the API, web, streamer and indexer next to the newest GitHub release of each, and can update everything with one click. It is opt-in because it needs the Docker socket:
 
-Start the stack with `docker compose --profile updates up -d`. There is no token to configure: Flixer and the updater derive it from the stream token secret they already share.
+Start the stack with `docker compose --profile updates up -d`. There is no token to configure: Flixer and the updater derive it from the app secret they already share.
 
 Only the [flixer-updater](https://github.com/flixermedia/flixer-updater) sidecar mounts `/var/run/docker.sock`; Flixer just calls its token-protected HTTP API on the internal network. It acts only when an admin presses **Update all** (or turns on automatic updates, which are off by default). The project folder is mounted into it at the same path as on the host (`PROJECT_DIR`, default the current directory) so it can run `docker compose`.
 

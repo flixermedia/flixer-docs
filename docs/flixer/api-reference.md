@@ -103,11 +103,11 @@ Legend: **Public** = no auth; **Bearer** = any authenticated user; **Signed** = 
 
 | Method | Path | Auth | Purpose |
 | --- | --- | --- | --- |
-| GET | `/streamer/media-roots` | Signed (`x-streamer-timestamp`, `x-streamer-signature`) | `{ roots: [{id, path}] }`. Signature = hex HMAC-SHA256(`STREAM_TOKEN_SECRET`, `flixer-streamer:media-roots:v1:<timestamp>`), ±5 min. |
+| GET | `/streamer/media-roots` | Signed (`x-streamer-timestamp`, `x-streamer-signature`) | `{ roots: [{id, path}] }`. Signature = hex HMAC-SHA256(`APP_SECRET`, `flixer-streamer:media-roots:v1:<timestamp>`), ±5 min. |
 
 ## Indexer-facing (signed) {#indexer-signed}
 
-Headers `x-indexer-timestamp` and `x-indexer-signature` = hex HMAC-SHA256(`STREAM_TOKEN_SECRET`, `flixer-indexer:v1:<ts>:<METHOD>:<path>:<sha256hex(body)>`), ±5 min skew. Bodies are read raw so the signature covers exact bytes.
+Headers `x-indexer-timestamp` and `x-indexer-signature` = hex HMAC-SHA256(`APP_SECRET`, `flixer-indexer:v1:<ts>:<METHOD>:<path>:<sha256hex(body)>`), ±5 min skew. Bodies are read raw so the signature covers exact bytes.
 
 | Method | Path | Purpose |
 | --- | --- | --- |

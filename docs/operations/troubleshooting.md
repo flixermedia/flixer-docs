@@ -20,7 +20,7 @@ Root folders come from `MEDIA_PATH` / `STREAM_MEDIA_ROOT` and are validated agai
 
 ## Playback fails or stalls
 
-1. Check `STREAM_TOKEN_SECRET` matches in flixer and the streamer.
+1. Check `APP_SECRET` matches in flixer and the streamer.
 2. Confirm `ffmpeg` and `ffprobe` are available to the streamer (`FFMPEG_PATH`).
 3. Look at `MAX_TRANSCODES`; at the limit new transcodes wait or fail.
 4. Check the streamer log and the admin **Streams** tab for the session.
@@ -35,7 +35,7 @@ Lower indexer worker counts in the dashboard or `INDEXER_MAX_WRITES` on flixer. 
 
 ## Saved SMB share passwords stopped working
 
-They are encrypted with a key derived from `STREAM_TOKEN_SECRET`. If it changed, re-enter them.
+They are encrypted with a key derived from `APP_SECRET`. If it changed, re-enter them.
 
 ## Passkeys do not register
 

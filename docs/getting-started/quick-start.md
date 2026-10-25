@@ -27,7 +27,7 @@ Edit `.env` and set at least:
 | --- | --- |
 | `DATABASE_URL` | Your Postgres connection string. |
 | `JWT_SECRET` | A random secret of 32 or more bytes. |
-| `STREAM_TOKEN_SECRET` | A different random secret of 32 or more bytes. Shared by flixer, the streamer and the indexer. |
+| `APP_SECRET` | A different random secret of 32 or more bytes. Shared by flixer, the streamer and the indexer. |
 | `FLIXER_PUBLIC_URL`, `APP_URL`, `PASSKEY_RP_ID`, `PASSKEY_ORIGINS` | The address users type in the browser. Passkeys only work when these match. |
 | `MEDIA_PATH` | Host path of the root media folder. |
 

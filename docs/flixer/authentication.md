@@ -83,11 +83,11 @@ Provided by `@simplewebauthn/server`, configured with `PASSKEY_RP_ID`, `PASSKEY_
 
 ## Stream tokens
 
-When a user starts playback, flixer issues a **stream token** (a 1-hour HS256 JWT, `iss=flixer`, `aud=flixer-streamer`) signed with `STREAM_TOKEN_SECRET`. The media location is not exposed: it is AES-256-GCM encrypted inside the `mediaLocator` claim, so only the streamer can read it. Details in [Playback and history](./playback-and-history.md).
+When a user starts playback, flixer issues a **stream token** (a 1-hour HS256 JWT, `iss=flixer`, `aud=flixer-streamer`) signed with `APP_SECRET`. The media location is not exposed: it is AES-256-GCM encrypted inside the `mediaLocator` claim, so only the streamer can read it. Details in [Playback and history](./playback-and-history.md).
 
 ## Service-to-service signatures
 
-Both indexer↔flixer and streamer→flixer calls use `HMAC-SHA256(STREAM_TOKEN_SECRET, …)` over a timestamp (±5 min skew) – see [Overview](./overview.md#how-it-talks-to-the-other-services).
+Both indexer↔flixer and streamer→flixer calls use `HMAC-SHA256(APP_SECRET, …)` over a timestamp (±5 min skew) – see [Overview](./overview.md#how-it-talks-to-the-other-services).
 
 ## Sentry public config
 

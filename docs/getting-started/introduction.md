@@ -21,7 +21,7 @@ It is made of four services plus Postgres and Redis:
 
 - **Libraries live in the database.** An admin creates libraries (Movies, TV Shows, Music, anything) in the dashboard and picks folders for each from the root folders the server exposes. See [Libraries and media](../flixer/libraries-and-media.md).
 - **Root folders are configuration.** `MEDIA_PATH` (Docker) or `STREAM_MEDIA_ROOT` (native) names the folder or folders everything is read from. It may be a JSON array so roots can sit on different disks.
-- **The streamer never trusts the browser.** Playback uses short-lived signed stream tokens shared between flixer and flixer-streamer through `STREAM_TOKEN_SECRET`.
+- **The streamer never trusts the browser.** Playback uses short-lived signed stream tokens shared between flixer and flixer-streamer through `APP_SECRET`.
 - **The admin dashboard is live.** Overview, streams, devices, indexer queues and network shares update over a single WebSocket. See [Real-time updates](../flixer/realtime.md).
 
 ## Where to go next

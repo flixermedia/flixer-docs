@@ -16,12 +16,17 @@ The service reads the process environment and then fills unset values from `.env
 | `ROLE` | `all` | `all`, `api`, or `worker`. `api` skips worker startup; `worker` still serves the HTTP API while starting workers. |
 | `FLIXER_URL` | `http://localhost:8083` | Base URL for the flixer internal indexer endpoints. |
 | `FLIXER_INTERNAL_URL` | `http://localhost:8083` | Backward-compatible fallback alias used only when `FLIXER_URL` is unset/blank. |
-| `STREAM_TOKEN_SECRET` | required | Shared HMAC secret used for both directions of indexer/flixer requests. If blank, `JWT_SECRET` is used. Either secret must be at least 32 bytes. |
-| `JWT_SECRET` | none | Legacy fallback for `STREAM_TOKEN_SECRET`; subject to the same minimum length. |
+| `APP_SECRET` | required | Shared HMAC secret used for both directions of indexer/flixer requests. If blank, `JWT_SECRET` is used. Either secret must be at least 32 bytes. |
+| `JWT_SECRET` | none | Legacy fallback for `APP_SECRET`; subject to the same minimum length. |
 | `REDIS_ADDR` | `localhost:6379` | Redis address used by Asynq and scan-progress storage. |
 | `REDIS_PASSWORD` | empty | Redis password. |
 | `REDIS_DB` | `0` | Redis database number; must be a non-negative integer. |
 | `CACHE_PATH` | `./cache/metadata` | Artwork cache directory. Made absolute at startup when possible. With Docker, the image sets `/var/cache/flixer/indexer`. |
+| `TRICKPLAY_ENABLED` | `true` | Automatically queue hover-seek thumbnail generation after video items are successfully upserted. |
+| `SUBTITLE_DIR` | `<CACHE_PATH>/subtitles` | Where subtitles are stored when the media folder is read-only. Flixer-streamer reads the same directory. |
+| `TRICKPLAY_DIR` | `<CACHE_PATH>/trickplay` | Directory containing per-item trickplay folders. Mount the same directory read-only into flixer-streamer. |
+| `TRICKPLAY_INTERVAL` | `10` | Thumbnail spacing, in seconds; valid range 2–60. |
+| `TRICKPLAY_WIDTH` | `320` | Thumbnail width in pixels; valid range 80–640. Height follows the video aspect ratio and is even. |
 | `FFPROBE_PATH` | `ffprobe` | Executable path/name used to inspect media files. |
 | `FFMPEG_PATH` | `ffmpeg` | Executable used for embedded artwork extraction. |
 | `CONCURRENCY_SCAN` | `2` | Initial worker count for the `scan` queue. |
@@ -30,6 +35,7 @@ The service reads the process environment and then fills unset values from `.env
 | `CONCURRENCY_IMAGES` | `8` | Initial worker count for `images`. |
 | `CONCURRENCY_PROBE` | `6` | Initial worker count for `probe`. |
 | `CONCURRENCY_REFRESH` | `4` | Initial worker count for `refresh`. |
+| `CONCURRENCY_TRICKPLAY` | `1` | Initial worker count for long-running thumbnail sheet generation. |
 | `LOG_LEVEL` | `info` | `debug`, `info`, `warn`/`warning`, or `error`. |
 | `USER_AGENT` | `flixer-indexer/1.0 (+https://github.com/flixermedia/flixer-indexer)` | User-Agent sent to external HTTP services. |
 | `METADATA_LANGUAGE` | `en` | Fallback language requested from metadata providers. |
@@ -50,7 +56,7 @@ The service reads the process environment and then fills unset values from `.env
 | `STUB_LIBRARIES_FILE` | empty | In stub mode, JSON input containing `{"libraries":[...]}`. |
 | `STUB_OUTPUT_FILE` | `./cache/stub-items.jsonl` | In stub mode, append one indexed item per JSONL line. |
 
-All six `CONCURRENCY_*` values must be integers from 1 to 64. Queue names are `scan`, `identify`, `metadata`, `images`, `probe`, and `refresh`. Runtime controls are described in [Queues and workers](./queues-and-workers.md).
+All seven `CONCURRENCY_*` values must be integers from 1 to 64. Queue names are `scan`, `identify`, `metadata`, `images`, `probe`, `refresh`, and `trickplay`. Runtime controls are described in [Queues and workers](./queues-and-workers.md).
 
 The `.env.example` lists the provider keys, but the current source also accepts the OpenSubtitles and lyrics variables above. They may be supplied to the process even when absent from that example file.
 
@@ -64,4 +70,4 @@ When flixer supplies a non-empty OpenSubtitles API key, its subtitle settings ar
 
 ## Docker Compose interpolation variables
 
-These names are Compose substitutions, not all indexer runtime settings. `docker-compose.yml` uses `INDEXER_ROLE` (`all`), `FLIXER_URL` (`http://flixer:8083`), required `STREAM_TOKEN_SECRET`, `INDEXER_LOG_LEVEL` (`info`), `METADATA_LANGUAGE` (`en`), provider keys (empty), `MEDIA_PATH` (`../flixer-data/media`), and `INDEXER_PORT` (`8092`). `docker-compose.dev.yml` uses `REDIS_PORT` (`6379`). The Compose stack sets Redis to its service address; it does not pass Redis password/database configuration. `INDEXER_MAX_WRITES` is a **flixer-side** write limiter setting, not an indexer variable; see [Queues and workers](./queues-and-workers.md).
+These names are Compose substitutions, not all indexer runtime settings. `docker-compose.yml` uses `INDEXER_ROLE` (`all`), `FLIXER_URL` (`http://flixer:8083`), required `APP_SECRET`, `INDEXER_LOG_LEVEL` (`info`), `METADATA_LANGUAGE` (`en`), provider keys (empty), `MEDIA_PATH` (`../flixer-data/media`), and `INDEXER_PORT` (`8092`). `docker-compose.dev.yml` uses `REDIS_PORT` (`6379`). The Compose stack sets Redis to its service address; it does not pass Redis password/database configuration. `INDEXER_MAX_WRITES` is a **flixer-side** write limiter setting, not an indexer variable; see [Queues and workers](./queues-and-workers.md).

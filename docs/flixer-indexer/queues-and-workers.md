@@ -18,10 +18,11 @@ Tasks are stored in Redis and executed with Asynq. The pipeline and queue names 
 | `images` | `images:fetch` | 8 | 5 minutes |
 | `probe` | `probe:item` | 6 | 3 minutes |
 | `refresh` | `refresh:item` | 4 | 5 minutes |
+| `trickplay` | `trickplay:item` | 1 | 3 hours |
 
-Each queue has its own Asynq server so worker counts can be changed independently. Environment settings `CONCURRENCY_SCAN`, `CONCURRENCY_IDENTIFY`, `CONCURRENCY_METADATA`, `CONCURRENCY_IMAGES`, `CONCURRENCY_PROBE`, and `CONCURRENCY_REFRESH` set initial counts. The allowed range is 1–64. Settings from flixer are polled once a minute; changes are applied by restarting that queue's worker server. During a restart, running jobs get up to 30 seconds to finish and are then requeued. `ROLE=api` starts no worker pool; `ROLE=worker` runs workers and serves the HTTP API as well.
+Each queue has its own Asynq server so worker counts can be changed independently. Environment settings `CONCURRENCY_SCAN`, `CONCURRENCY_IDENTIFY`, `CONCURRENCY_METADATA`, `CONCURRENCY_IMAGES`, `CONCURRENCY_PROBE`, `CONCURRENCY_REFRESH`, and `CONCURRENCY_TRICKPLAY` set initial counts. The allowed range is 1–64. Settings from flixer are polled once a minute; changes are applied by restarting that queue's worker server. During a restart, running jobs get up to 30 seconds to finish and are then requeued. `ROLE=api` starts no worker pool; `ROLE=worker` runs workers and serves the HTTP API as well.
 
-Tasks are unique for 30 minutes and completed tasks are retained for two hours. A scan task is configured with zero retries. Item stages and refresh use up to three retries with Asynq's default retry-delay function. A terminal failure of an item task is reflected in scan progress; malformed task payloads and unknown-library cases marked `SkipRetry` do not benefit from retries. The final probe can proceed to persistence without technical details after its retries are exhausted.
+Tasks are unique for 30 minutes and completed tasks are retained for two hours. A scan task is configured with zero retries. Item stages and refresh use up to three retries with Asynq's default retry-delay function; trickplay generation uses one retry and a duration-scaled timeout capped at three hours. A terminal failure of an item task is reflected in scan progress; malformed task payloads and unknown-library cases marked `SkipRetry` do not benefit from retries. The final probe can proceed to persistence without technical details after its retries are exhausted.
 
 ## Queue control and status
 
@@ -40,3 +41,7 @@ A scan snapshot contains `libraryId`, `state`, `discovered`, `done`, `failed`, a
 Indexer queue concurrency limits concurrent work in the indexer, but flixer separately limits how many item writes reach its database. In the flixer repository, `INDEXER_MAX_WRITES` defaults to `3`; `INDEXER_MAX_QUEUED_WRITES` defaults to `200`. The flixer `WorkLimiter` queues writes up to that bound and returns HTTP `429` when the waiting queue is full. These are **flixer** settings, not indexer environment variables.
 
 The indexer HTTP client treats non-429 4xx responses from flixer as permanent failures; HTTP 429 is deliberately not permanent, so Asynq can retry the upsert using its default retry delay. Other non-2xx statuses and transport errors are retryable as well. In deployments, size `INDEXER_MAX_WRITES` for flixer's database connection budget and tune the indexer's `probe`/upstream concurrency to avoid excessive pressure; do not mistake a higher worker count for higher safe write throughput. Sources: flixer `src/api/indexer/workLimiter.ts`, `.env.example`, and indexer `internal/flixerclient/client.go`.
+
+## Trickplay backfill
+
+`POST /internal/scan` accepts `{"libraryId":"…","trickplayOnly":true}` to walk a library and queue eligible movie, episode, and video items directly to `trickplay`. It does not start or update scan progress and never prunes. The normal scan and trickplay-only request have different task payloads, so they do not collide under Asynq uniqueness. Generation checks the source size and RFC3339 modification time against `index.json`; matching files are cheap no-ops.

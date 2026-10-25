@@ -41,13 +41,13 @@ flowchart LR
 
 | Direction | Mechanism | Secret |
 | --- | --- | --- |
-| flixer → indexer (`INDEXER_URL`) | HTTP to `/internal/*`, HMAC-signed headers `x-indexer-timestamp` / `x-indexer-signature` (`src/api/indexer/indexerClient.ts`, `indexerAuth.ts`) | `STREAM_TOKEN_SECRET` |
-| indexer → flixer | `GET /api/indexer/libraries`, `GET /api/indexer/settings`, `POST /api/indexer/media/items`, `POST /api/indexer/libraries/:id/prune` with the same signing scheme (`indexerApiController.ts`) | `STREAM_TOKEN_SECRET` |
-| flixer → streamer (`STREAMER_INTERNAL_URL`) | `GET /admin/sessions`, `DELETE /admin/sessions/:id` with an admin key derived as `HMAC-SHA256(secret, "flixer-streamer:admin:v1")` (`src/api/streams/streamsService.ts`) | `STREAM_TOKEN_SECRET` |
-| streamer → flixer | `GET /api/streamer/media-roots`, signed with `x-streamer-timestamp` / `x-streamer-signature` (`src/api/mediaLibraries/streamerRootsController.ts`) so root IDs always match | `STREAM_TOKEN_SECRET` |
-| client → streamer | HS256 stream token issued by flixer (`src/api/playback/playbackService.ts`) | `STREAM_TOKEN_SECRET` |
+| flixer → indexer (`INDEXER_URL`) | HTTP to `/internal/*`, HMAC-signed headers `x-indexer-timestamp` / `x-indexer-signature` (`src/api/indexer/indexerClient.ts`, `indexerAuth.ts`) | `APP_SECRET` |
+| indexer → flixer | `GET /api/indexer/libraries`, `GET /api/indexer/settings`, `POST /api/indexer/media/items`, `POST /api/indexer/libraries/:id/prune` with the same signing scheme (`indexerApiController.ts`) | `APP_SECRET` |
+| flixer → streamer (`STREAMER_INTERNAL_URL`) | `GET /admin/sessions`, `DELETE /admin/sessions/:id` with an admin key derived as `HMAC-SHA256(secret, "flixer-streamer:admin:v1")` (`src/api/streams/streamsService.ts`) | `APP_SECRET` |
+| streamer → flixer | `GET /api/streamer/media-roots`, signed with `x-streamer-timestamp` / `x-streamer-signature` (`src/api/mediaLibraries/streamerRootsController.ts`) so root IDs always match | `APP_SECRET` |
+| client → streamer | HS256 stream token issued by flixer (`src/api/playback/playbackService.ts`) | `APP_SECRET` |
 
-The same `STREAM_TOKEN_SECRET` (≥ 32 bytes) must therefore be configured identically on flixer, flixer-streamer and flixer-indexer.
+The same `APP_SECRET` (≥ 32 bytes) must therefore be configured identically on flixer, flixer-streamer and flixer-indexer.
 
 ## Tech stack
 

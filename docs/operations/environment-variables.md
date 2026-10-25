@@ -13,7 +13,7 @@ This page summarises the variables that tie services together. Each service's ow
 
 | Variable | Services | Meaning |
 | --- | --- | --- |
-| `STREAM_TOKEN_SECRET` | flixer, streamer, indexer | Must be identical everywhere. 32+ random bytes. |
+| `APP_SECRET` | flixer, streamer, indexer | Must be identical everywhere. 32+ random bytes. |
 | `FLIXER_URL` | streamer, indexer | Base URL of the flixer API. |
 | `LOG_LEVEL` | streamer, indexer | `debug`, `info`, `warn`, `error`. |
 | `LOG_DIR` | flixer, streamer | Write JSON logs for Alloy/Loki (native dev). |
