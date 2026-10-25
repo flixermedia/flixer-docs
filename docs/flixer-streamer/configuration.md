@@ -19,7 +19,7 @@ description: Environment variables, defaults, media-root ownership, and startup 
 | `MAX_TRANSCODES` | `0` (unlimited) | Maximum simultaneous FFmpeg jobs. Must be a non-negative integer. When positive, a request can wait up to 10 seconds for a slot before receiving `503 transcoder_busy`. This limits FFmpeg jobs, not HTTP requests or FFprobe probes. |
 | `FFMPEG_LOG_LEVEL` | `info` | FFmpeg stderr verbosity forwarded into streamer logs. Accepted values: `quiet`, `panic`, `fatal`, `error`, `warning`, `info`, `verbose`, `debug`, `trace`. |
 | `SUBTITLE_DIR` | `<TRICKPLAY_DIR parent>/subtitles` | Subtitles the indexer stored for videos in read-only media folders. Mount it read-only from the indexer cache. |
-| `TRICKPLAY_DIR` | `/data/metadata/trickplay` | Shared hover-seek thumbnail sheet directory. Mount it read-only from the indexer cache. |
+| `TRICKPLAY_DIR` | `/data/cache/trickplay` | Shared hover-seek thumbnail sheet directory. Mount it read-only from the indexer cache. |
 | `TRANSCODE_DIR` | `./cache/transcode` | Present in configuration and documented as reserved for future use. Current progressive and HLS implementations pipe FFmpeg output and do not store transcodes here. |
 | `ALLOWED_ORIGINS` | Empty | Optional comma-separated exact browser origins. If empty, requests without an `Origin` are accepted, but a request supplying an origin is denied. CORS is not authorization. |
 | `LOG_LEVEL` | `info` | Minimum service log level: `debug`, `info`, `warn`/`warning`, or `error`. |

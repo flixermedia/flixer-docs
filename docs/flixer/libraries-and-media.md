@@ -57,7 +57,7 @@ sequenceDiagram
 
 ## Media items and images
 
-`media_items.images` is a JSON list of `{type, path, provider, ...}`; types used by the UI include `poster`, `backdrop`, `thumb`, `logo`. Images are never exposed by path: clients request `GET /api/media/items/:id/images/:index` (authenticated; `Cache-Control: private, max-age=300`). Files indexed by the indexer are fetched from it (`IndexerClient.fetchImage`); manual uploads live in `MEDIA_IMAGE_DIR` and are referenced as `upload:<filename>` (`src/api/media/mediaImageStorage.ts`).
+`media_items.images` is a JSON list of `{type, path, provider, ...}`; types used by the UI include `poster`, `backdrop`, `thumb`, `logo`. Images are never exposed by path: clients request `GET /api/media/items/:id/images/:index` (authenticated; `Cache-Control: private, max-age=300`). Files indexed by the indexer are fetched from it (`IndexerClient.fetchImage`); manual uploads live under `DATA_PATH/cache/images/{media-id}/manual` and are referenced as `upload:<filename>` (`src/api/media/mediaImageStorage.ts`).
 
 ## Metadata editor (admin)
 
@@ -74,7 +74,7 @@ sequenceDiagram
 
 - Input: `name`, `host` (hostname/IP), `share` (name only, no slashes), optional `username`, `domain` (needs a username), `password`, `readOnly` (default true).
 - Passwords are encrypted with **AES-256-GCM**; the key is derived by HKDF-SHA256 from `APP_SECRET` (context `flixer:network-shares:v1`). If the secret changes the password cannot be decrypted and the share reports an error until re-entered.
-- **Linux:** `mount -t cifs` under `SMB_MOUNT_DIR/<share id>` (needs root or `SYS_ADMIN`; the password is passed via the `PASSWD` env var, never on the command line). **macOS:** `mount_smbfs`. **Windows:** `net use` and a UNC path.
+- **Linux:** `mount -t cifs` under `DATA_PATH/mounts/<share id>` (needs root or `SYS_ADMIN`; the password is passed via the `PASSWD` env var, never on the command line). **macOS:** `mount_smbfs` under the same data folder. **Windows:** `net use` and a UNC path.
 - Create/update connects first and fails with `400` (secret-redacted message) if it cannot; unique-name conflict → `409`; deleting a share used by a library → `409`.
 - Status per share: `connecting`, `connected`, `error`. On startup shares reconnect in the background. `POST /:id/reconnect` retries.
 - Responses never contain the password (`hasPassword` only) and expose `rootId`, `location`, `status`, `error`.

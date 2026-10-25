@@ -28,7 +28,7 @@ description: Administrator tabs, panel responsibilities, the API calls behind th
 
 ## Indexer controls and providers
 
-The queue section reads `GET /admin/indexer/status` and subscribes to topic `indexer`. It displays scan state and counters for the six queues (`scan`, `identify`, `metadata`, `images`, `probe`, `refresh`), allows pause/resume, and saves per-queue worker concurrency with `PUT /admin/indexer/concurrency`. The task browser filters by queue/state and pages `GET /admin/indexer/tasks`; it offers cancel/retry actions at `/admin/indexer/tasks/:queue/:id/{cancel,retry}`.
+The queue section reads `GET /admin/indexer/status` and subscribes to topic `indexer`. It displays scan state and counters for the six queues (`scan`, `identify`, `metadata`, `images`, `probe`, `refresh`), allows pause/resume, and saves per-queue worker concurrency with `PUT /admin/indexer/concurrency`. The task browser filters by queue/state and pages `GET /admin/indexer/tasks`; it offers cancel/retry actions at `/admin/indexer/tasks/:queue/:id/{cancel,retry}`. Active, retrying and failed tasks also have a **Logs** button that opens a modal with the task's recorded output (`GET /admin/indexer/tasks/:queue/:id/logs?offset=N`), polled every two seconds while the task is running.
 
 Provider configuration is stored through `/settings`: it exposes TMDB, TVDB, OMDb, Fanart, TheAudioDB, Discogs, AniDB, MusicBrainz, and AniList toggles, API-key fields for keyed providers, and an indexer language value. The API key returned as a mask is preserved when the field is left blank.
 

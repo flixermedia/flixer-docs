@@ -31,7 +31,7 @@ The indexer starts with IDs parsed from names and NFOs, as well as title/year hi
 
 Metadata merge is fill-only: existing destination values win. This means local NFO values win over provider values, and earlier provider results win where they already populated a field. Missing IDs and fields can be supplied by later providers. Filename hints fill fields still empty at finalization. `internal/providers/providers.go`, `internal/providers/registry/registry.go`, and `internal/pipeline/handlers.go` implement these rules.
 
-Local artwork found next to media is preferred by type: remote candidates are skipped for an image type already present locally. Downloaded remote images are validated and saved alongside the media when `imageStorage=alongside`; if that write fails, or the library uses cache storage, they go under `CACHE_PATH/<libraryId>/<path-hash>/`. The image store also extracts embedded audio cover art as a fallback for albums. Provider artwork candidate limits are applied by type in the pipeline.
+Local artwork found next to media is preferred by type: remote candidates are skipped for an image type already present locally. Downloaded remote images are validated and saved alongside the media when `imageStorage=alongside`; if that write fails, or the library uses cache storage, they go under `CACHE_PATH/images/{media-id}/`. The stable media ID is the first 32 hexadecimal characters of SHA-256 over `rootId + "\n" + relativePath`, so rescanning the same location reuses cached artwork. The image store also extracts embedded audio cover art as a fallback for albums. Provider artwork candidate limits are applied by type in the pipeline.
 
 ## Caching and limits
 

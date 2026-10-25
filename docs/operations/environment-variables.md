@@ -26,11 +26,11 @@ This page summarises the variables that tie services together. Each service's ow
 | `JWT_SECRET` | Access-token signing. |
 | `FLIXER_PUBLIC_URL`, `HTTP_PORT` | Public address and published proxy port. |
 | `MEDIA_PATH` (Docker) / `STREAM_MEDIA_ROOT` | Root media folder(s); `STREAM_MEDIA_ROOT` accepts a JSON array natively. |
-| `AVATAR_PATH`, `MEDIA_IMAGE_PATH` / `MEDIA_IMAGE_DIR` | Avatar and uploaded image storage. |
+| `DATA_DIR` | Host folder mounted at `/data` in containers (`DATA_PATH=/data` inside). Root for avatars, SQLite config, cache, logs and backups. |
 | `APP_URL`, `PASSKEY_RP_ID`, `PASSKEY_ORIGINS` | Passkey (WebAuthn) configuration; must match the browser address. |
 | `STREAMER_PUBLIC_URL`, `STREAMER_INTERNAL_URL`, `INDEXER_URL` | How flixer reaches the other services. |
 | `INDEXER_MAX_WRITES`, `INDEXER_MAX_QUEUED_WRITES` | Backpressure on indexer writes. |
-| `SMB_MOUNT_DIR`, `SMB_MOUNT_PATH` | Network share mount locations (Linux/macOS/Docker). |
+| `DATA_PATH` | Root for persistent application data; SMB mounts are stored under `mounts/` and backups under `backups/`. |
 
 Email (SMTP), OpenSubtitles credentials and metadata provider keys are configured in the admin dashboard, not in `.env`.
 
@@ -50,7 +50,7 @@ Email (SMTP), OpenSubtitles credentials and metadata provider keys are configure
 | --- | --- | --- |
 | `PORT`, `ROLE` | `8092`, `all` | Listen port; `all`, `api` or `worker`. |
 | `REDIS_ADDR`, `REDIS_PASSWORD`, `REDIS_DB` | `localhost:6379` | Task queue. |
-| `CACHE_PATH` | `./cache/metadata` | Artwork for cache image storage. |
+| `CACHE_PATH` | `./cache` | Root of people, image, theme, subtitle and trickplay cache folders (in Docker, `/data/cache`). |
 | `CONCURRENCY_*` | see config page | Initial workers per queue; adjustable at runtime from the dashboard. |
 | `TMDB_API_KEY` and others | empty | Fallbacks; flixer settings take precedence. |
 | `FLIXER_MODE=stub` | unset | Run without flixer for testing. |
