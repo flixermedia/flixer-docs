@@ -78,7 +78,7 @@ Provided by `@simplewebauthn/server`, configured with `PASSKEY_RP_ID`, `PASSKEY_
 ## Other account features
 
 - **Delete account:** `POST /api/auth/me/delete` with the password; the last admin cannot delete themselves; the avatar is removed and an "account deleted" mail is sent best-effort.
-- **Avatars:** `POST /api/auth/me/avatar` (multipart field `avatar`, ≤ 5 MB, PNG/JPEG/WebP/GIF detected by magic bytes) stored in `AVATAR_DIR` as `<userId>-<16hex>.<ext>`, publicly served by `GET /api/auth/avatars/:filename` with immutable cache headers.
+- **Avatars:** `POST /api/auth/me/avatar` (multipart field `avatar`, ≤ 5 MB, PNG/JPEG/WebP/GIF detected by magic bytes) stored under `DATA_PATH/avatars` as `<userId>-<16hex>.<ext>`, publicly served by `GET /api/auth/avatars/:filename` with immutable cache headers.
 - **Preferences:** only `language` is allowed (BCP-47-like, ≤ 35 chars); `null` removes it.
 
 ## Stream tokens

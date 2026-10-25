@@ -21,7 +21,7 @@ The service reads the process environment and then fills unset values from `.env
 | `REDIS_ADDR` | `localhost:6379` | Redis address used by Asynq and scan-progress storage. |
 | `REDIS_PASSWORD` | empty | Redis password. |
 | `REDIS_DB` | `0` | Redis database number; must be a non-negative integer. |
-| `CACHE_PATH` | `./cache/metadata` | Artwork cache directory. Made absolute at startup when possible. With Docker, the image sets `/var/cache/flixer/indexer`. |
+| `CACHE_PATH` | `./cache` (or `$DATA_PATH/cache`) | Root for media caches: `people/{person-id}.jpg`, `images/{media-id}/`, `theme/{media-id}/`, `subtitles/{media-id}/`, and `trickplay/{media-id}/`. Made absolute at startup when possible. Docker uses `/data/cache`. |
 | `TRICKPLAY_ENABLED` | `true` | Automatically queue hover-seek thumbnail generation after video items are successfully upserted. |
 | `SUBTITLE_DIR` | `<CACHE_PATH>/subtitles` | Where subtitles are stored when the media folder is read-only. Flixer-streamer reads the same directory. |
 | `TRICKPLAY_DIR` | `<CACHE_PATH>/trickplay` | Directory containing per-item trickplay folders. Mount the same directory read-only into flixer-streamer. |
@@ -33,9 +33,10 @@ The service reads the process environment and then fills unset values from `.env
 | `CONCURRENCY_IDENTIFY` | `12` | Initial worker count for `identify`. |
 | `CONCURRENCY_METADATA` | `12` | Initial worker count for `metadata`. |
 | `CONCURRENCY_IMAGES` | `8` | Initial worker count for `images`. |
-| `CONCURRENCY_PROBE` | `6` | Initial worker count for `probe`. |
+| `CONCURRENCY_PROBE` | `12` | Initial worker count for `probe`. |
 | `CONCURRENCY_REFRESH` | `4` | Initial worker count for `refresh`. |
-| `CONCURRENCY_TRICKPLAY` | `1` | Initial worker count for long-running thumbnail sheet generation. |
+| `CONCURRENCY_TRICKPLAY` | `6` | Initial worker count for long-running thumbnail sheet generation. |
+| `CONCURRENCY_THEMES` | `6` | Initial worker count for theme song downloads. |
 | `LOG_LEVEL` | `info` | `debug`, `info`, `warn`/`warning`, or `error`. |
 | `USER_AGENT` | `flixer-indexer/1.0 (+https://github.com/flixermedia/flixer-indexer)` | User-Agent sent to external HTTP services. |
 | `METADATA_LANGUAGE` | `en` | Fallback language requested from metadata providers. |
@@ -56,7 +57,7 @@ The service reads the process environment and then fills unset values from `.env
 | `STUB_LIBRARIES_FILE` | empty | In stub mode, JSON input containing `{"libraries":[...]}`. |
 | `STUB_OUTPUT_FILE` | `./cache/stub-items.jsonl` | In stub mode, append one indexed item per JSONL line. |
 
-All seven `CONCURRENCY_*` values must be integers from 1 to 64. Queue names are `scan`, `identify`, `metadata`, `images`, `probe`, `refresh`, and `trickplay`. Runtime controls are described in [Queues and workers](./queues-and-workers.md).
+All eight `CONCURRENCY_*` values must be integers from 1 to 64. Queue names are `scan`, `identify`, `metadata`, `images`, `probe`, `refresh`, `trickplay`, and `themes`. Runtime controls are described in [Queues and workers](./queues-and-workers.md).
 
 The `.env.example` lists the provider keys, but the current source also accepts the OpenSubtitles and lyrics variables above. They may be supplied to the process even when absent from that example file.
 

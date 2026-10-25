@@ -16,11 +16,14 @@ Tasks are stored in Redis and executed with Asynq. The pipeline and queue names 
 | `identify` | `identify:item` | 12 | 5 minutes |
 | `metadata` | `metadata:fetch` | 12 | 5 minutes |
 | `images` | `images:fetch` | 8 | 5 minutes |
-| `probe` | `probe:item` | 6 | 3 minutes |
+| `probe` | `probe:item` | 12 | 3 minutes |
 | `refresh` | `refresh:item` | 4 | 5 minutes |
-| `trickplay` | `trickplay:item` | 1 | 3 hours |
+| `trickplay` | `trickplay:item` | 6 | 3 hours |
+| `themes` | `themes:item` | 6 | 15 minutes |
 
-Each queue has its own Asynq server so worker counts can be changed independently. Environment settings `CONCURRENCY_SCAN`, `CONCURRENCY_IDENTIFY`, `CONCURRENCY_METADATA`, `CONCURRENCY_IMAGES`, `CONCURRENCY_PROBE`, `CONCURRENCY_REFRESH`, and `CONCURRENCY_TRICKPLAY` set initial counts. The allowed range is 1–64. Settings from flixer are polled once a minute; changes are applied by restarting that queue's worker server. During a restart, running jobs get up to 30 seconds to finish and are then requeued. `ROLE=api` starts no worker pool; `ROLE=worker` runs workers and serves the HTTP API as well.
+Each task's log output (the start and end of every attempt, plus the handler's info, warning and error lines) is stored in Redis for 7 days, capped at 1000 lines, and can be read from the admin dashboard while the task runs or after it fails.
+
+Each queue has its own Asynq server so worker counts can be changed independently. Environment settings `CONCURRENCY_SCAN`, `CONCURRENCY_IDENTIFY`, `CONCURRENCY_METADATA`, `CONCURRENCY_IMAGES`, `CONCURRENCY_PROBE`, `CONCURRENCY_REFRESH`, `CONCURRENCY_TRICKPLAY`, and `CONCURRENCY_THEMES` set initial counts. The allowed range is 1–64. Settings from flixer are polled once a minute; changes are applied by restarting that queue's worker server. During a restart, running jobs get up to 30 seconds to finish and are then requeued. `ROLE=api` starts no worker pool; `ROLE=worker` runs workers and serves the HTTP API as well.
 
 Tasks are unique for 30 minutes and completed tasks are retained for two hours. A scan task is configured with zero retries. Item stages and refresh use up to three retries with Asynq's default retry-delay function; trickplay generation uses one retry and a duration-scaled timeout capped at three hours. A terminal failure of an item task is reflected in scan progress; malformed task payloads and unknown-library cases marked `SkipRetry` do not benefit from retries. The final probe can proceed to persistence without technical details after its retries are exhausted.
 

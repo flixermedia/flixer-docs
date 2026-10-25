@@ -10,14 +10,13 @@ The reference deployment is `docker-compose.yml` in the `flixer` repository.
 
 | Container | Image | Internal port | Notes |
 | --- | --- | --- | --- |
-| `api` | `ghcr.io/flixermedia/flixer` | 8081 | Mounts media read-only plus avatar and image folders. |
+| `api` | `ghcr.io/flixermedia/flixer` | 8081 | Mounts media read-only plus data folders under `DATA_DIR`. |
 | `streamer` | `ghcr.io/flixermedia/flixer-streamer` | 8091 | Media read-only; transcode cache. |
 | `indexer` | `ghcr.io/flixermedia/flixer-indexer` | 8092 | Media read-write so artwork can be stored next to media (use `:ro` if every library uses cache image storage). |
+| `postgres` | `postgres:16-alpine` | 5432 | Bundled database; data is stored in `DATA_DIR/database`. |
 | `redis` | `redis:7-alpine` | 6379 | Append-only persistence. |
 | `web` | `ghcr.io/flixermedia/flixer-web` | 80 | Static frontend. |
 | `proxy` | built from `deploy/proxy` | 80 (published as `HTTP_PORT`) | nginx front door. |
-
-PostgreSQL is **not** part of the compose file; supply `DATABASE_URL`.
 
 ## Proxy routing
 
@@ -51,8 +50,11 @@ The bundled proxy listens on plain HTTP. Terminate TLS in front of it and set `F
 | Volume | Purpose |
 | --- | --- |
 | `redis-data` | Indexer queue persistence. |
-| `indexer-cache` | Artwork for libraries with cache image storage. |
-| `${AVATAR_PATH}`, `${MEDIA_IMAGE_PATH}` | Avatars and images uploaded in the media editor. |
+| `${DATA_DIR}/avatars` | User avatars. |
+| `${DATA_DIR}/config` | SQLite bootstrap config and encryption key. |
+| `${DATA_DIR}/cache` | Media images, people photos, themes, subtitles and trickplay. |
+| `${DATA_DIR}/database` | Bundled PostgreSQL data. |
+| `${DATA_DIR}/backups` | Backup archives. |
 
 ## SMB and observability overlays
 
@@ -69,7 +71,7 @@ Only the [flixer-updater](https://github.com/flixermedia/flixer-updater) sidecar
 
 An update runs these steps, shown live in the dashboard:
 
-1. A `pg_dump` of the database (using the database URL Flixer is configured with) is written to `$DATA_PATH/backups` (the latest 5 are kept). If it fails, nothing is changed.
+1. A `pg_dump` of the database (using the database URL Flixer is configured with) is written to `$DATA_DIR/backups` (the latest 5 are kept). If it fails, nothing is changed.
 2. The new release of each outdated component is pinned in the updater's state volume (`versions.env`, read through the `${*_VERSION:-latest}` image tags) and the images are pulled.
 3. Services are recreated one at a time (streamer, indexer, web, API) and each must become healthy.
 4. If one fails, the previous releases are restored automatically and the run is reported as rolled back. A component whose previous version was not a known release (for example a `latest` or dev build) cannot be restored and is reported.
