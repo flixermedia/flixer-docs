@@ -10,7 +10,7 @@ The streamer serves sidecar text files stored next to media, using the same encr
 
 ## Lyrics
 
-`GET /lyrics/{token}` expects a valid stream token whose relative path has one of these audio extensions: `.mp3`, `.flac`, `.m4a`, `.aac`, `.ogg`, `.opus`, `.wav`, `.aiff`, or `.aif` (extension matching is case-insensitive). It replaces the audio extension with `.lrc` and opens that sibling in the same media root. For example, `Music/Track.flac` looks for `Music/Track.lrc`.
+`GET /lyrics/{token}` expects a valid stream token whose relative path has one of these audio extensions: `.mp3`, `.flac`, `.m4a`, `.aac`, `.ogg`, `.opus`, `.wav`, `.aiff`, or `.aif` (extension matching is case-insensitive). It first opens `DATA_PATH/lyrics/{media item id}.lrc` (override with `LYRICS_PATH`), where the indexer stores lyrics it downloads from lrclib.net so read-only libraries work. If that file is absent it replaces the audio extension with `.lrc` and opens that sibling in the same media root, for example `Music/Track.flac` looks for `Music/Track.lrc`.
 
 A successful response is `text/plain; charset=utf-8` with `Cache-Control: private, no-store`. The handler reads at most 2 MiB. Unsupported token file extensions, missing sidecars, or invalid paths return `404 lyrics_not_found`; unexpected filesystem/read errors return `500 lyrics_failed`. Only `GET` is allowed.
 
