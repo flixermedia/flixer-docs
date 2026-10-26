@@ -47,7 +47,7 @@ The admin Plugins page can list installations, search enabled repository catalog
 
 Installed metadata records requested versus granted permissions. Backend and indexer WASI modules currently receive no host capabilities; backend authentication is enforced by Flixer before dispatch. The signed indexer status endpoint reports runtime registration; per-invocation health metrics, publisher signatures, and app-version checks for streamer/web targets remain pending.
 
-Uninstall removes the package but retains plugin-owned data, including scoped backend storage, for a future reinstall. Existing user feature data is not migrated by the current plugin manager yet. Media requests are now the official `flixer.requests` plugin; the core implementation, its `requests_*` settings and its tables were removed (no data was migrated). Theme songs remain core-owned.
+Uninstall removes the package but retains plugin-owned data, including scoped backend storage, for a future reinstall. Existing user feature data is not migrated by the current plugin manager yet. Media requests and theme songs remain core-owned.
 
 ## Indexer provider contract
 
