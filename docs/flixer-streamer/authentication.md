@@ -10,7 +10,7 @@ description: HS256 stream-token requirements, encrypted locators, expiry checks,
 
 ## Stream token
 
-A request token is a compact JWT in the route path, for example `/stream/{token}`. It must use an unpadded base64url encoding and the following header:
+A request token is a compact JWT in the route path, for example `/streamer/stream/{token}`. It must use an unpadded base64url encoding and the following header:
 
 ```json
 {"alg":"HS256","typ":"JWT"}
@@ -44,7 +44,7 @@ Use a cryptographically random secret, share it only with trusted Flixer/streame
 
 ## Admin bearer key
 
-The `/admin/sessions` endpoints use a derived key rather than the stream JWT. Derive the key as lowercase hex of `HMAC-SHA256(secret, "flixer-streamer:admin:v1")`; send it as `Authorization: Bearer <derived-key>`. `internal/httpserver/admin.go` compares it in constant time. No additional admin secret setting exists. Restrict these endpoints to trusted backend/management networks; do not expose them through a public reverse proxy.
+The `/streamer/admin/sessions` endpoints use a derived key rather than the stream JWT. Derive the key as lowercase hex of `HMAC-SHA256(secret, "flixer-streamer:admin:v1")`; send it as `Authorization: Bearer <derived-key>`. `internal/httpserver/admin.go` compares it in constant time. No additional admin secret setting exists. Restrict these endpoints to trusted backend/management networks; do not expose them through a public reverse proxy.
 
 ## Flixer integration status
 

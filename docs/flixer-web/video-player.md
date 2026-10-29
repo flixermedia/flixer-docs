@@ -12,7 +12,7 @@ The full-screen player is `src/components/player/VideoPlayer.vue`, mounted by `P
 
 `StreamInfo.playMethod` describes the source path: `DirectPlay`, `DirectStream`, or `Transcode`. Height `0` represents original quality; the quality menu also offers the streamer's available output heights. Selecting a height above zero requests a transcoded stream. Changing quality restarts from the current timeline position and resumes only if playback was not paused.
 
-For a progressive stream the player builds a `/stream/` URL, optionally with `height` and `start` query parameters. On browsers that can natively play HLS (WebKit detection; Chromium/Chrome/Edge are excluded), a non-DirectPlay stream uses `/hls/.../index.m3u8`; DirectPlay remains on its normal stream URL. DirectPlay and native HLS use the media element's native clock and seeking. The streamer handles remuxing/transcoding and stream delivery; the web app does not transcode media itself.
+For a progressive stream the player builds a `/streamer/stream/` URL, optionally with `height` and `start` query parameters. On browsers that can natively play HLS (WebKit detection; Chromium/Chrome/Edge are excluded), a non-DirectPlay stream uses `/streamer/hls/.../index.m3u8`; DirectPlay remains on its normal stream URL. DirectPlay and native HLS use the media element's native clock and seeking. The streamer handles remuxing/transcoding and stream delivery; the web app does not transcode media itself.
 
 ## Seeking and subtitle time alignment
 

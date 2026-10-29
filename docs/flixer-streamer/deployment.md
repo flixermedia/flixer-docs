@@ -41,7 +41,7 @@ The same `.env` behavior and FFmpeg requirements apply. Use a service manager or
 
 ## Docker
 
-The multi-stage `Dockerfile` builds a static Linux binary with Go 1.25 Alpine and uses Alpine 3.22 at runtime. The runtime image installs CA certificates, `curl`, and FFmpeg; it runs as unprivileged user `streamer` (UID 65532), exposes port 8091, and sets `TRANSCODE_DIR=/var/cache/flixer/transcode`. Its health check calls `/healthz`. The cache directory is currently not used for HLS/transcode output because FFmpeg streams through pipes.
+The multi-stage `Dockerfile` builds a static Linux binary with Go 1.25 Alpine and uses Alpine 3.22 at runtime. The runtime image installs CA certificates, `curl`, and FFmpeg; it runs as unprivileged user `streamer` (UID 65532), exposes port 8091, and sets `TRANSCODE_DIR=/var/cache/flixer/transcode`. Its health check calls `/streamer/healthz`. The cache directory is currently not used for HLS/transcode output because FFmpeg streams through pipes.
 
 Build locally from the `flixer-streamer` repository:
 
@@ -55,4 +55,4 @@ Provide `APP_SECRET` and `FLIXER_URL` at runtime. Mount media read-only and ensu
 
 Service logs are structured JSON to stdout. Set `LOG_LEVEL` to choose the minimum service log level. When `LOG_DIR` is set, the same JSON records are also written to `LOG_DIR/streamer.log`, rotated at 10 MiB with three backups (`.1`, `.2`, `.3`). FFmpeg stderr is parsed and forwarded at `FFMPEG_LOG_LEVEL`; process start/exit records include operational metadata. Avoid logging or proxying complete tokenized URLs.
 
-`GET /healthz` returns `200` with `status` and `activeTranscodes`; HEAD returns an empty `200`. It does not assert that Flixer roots have loaded or that FFmpeg is ready. The Docker health check therefore indicates process liveness only, not playback readiness.
+`GET /streamer/healthz` returns `200` with `status` and `activeTranscodes`; HEAD returns an empty `200`. It does not assert that Flixer roots have loaded or that FFmpeg is ready. The Docker health check therefore indicates process liveness only, not playback readiness.

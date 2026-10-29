@@ -20,7 +20,7 @@ It owns the *state and rules* of the platform; the heavy lifting is delegated:
 ```mermaid
 flowchart LR
   Web[flixer-web] -->|/api/*| Flixer
-  Web -->|/stream /hls /info /lyrics /subtitles| Streamer
+  Web -->|/streamer/stream /streamer/hls /streamer/info /streamer/lyrics /streamer/subtitles| Streamer
   Flixer[flixer API] <-->|signed HTTP| Indexer[flixer-indexer]
   Flixer -->|admin key HTTP| Streamer[flixer-streamer]
   Streamer -->|signed GET media-roots| Flixer
@@ -43,7 +43,7 @@ flowchart LR
 | --- | --- | --- |
 | flixer → indexer (`INDEXER_URL`) | HTTP to `/internal/*`, HMAC-signed headers `x-indexer-timestamp` / `x-indexer-signature` (`src/api/indexer/indexerClient.ts`, `indexerAuth.ts`) | `APP_SECRET` |
 | indexer → flixer | `GET /api/indexer/libraries`, `GET /api/indexer/settings`, `POST /api/indexer/media/items`, `POST /api/indexer/libraries/:id/prune` with the same signing scheme (`indexerApiController.ts`) | `APP_SECRET` |
-| flixer → streamer (`STREAMER_INTERNAL_URL`) | `GET /admin/sessions`, `DELETE /admin/sessions/:id` with an admin key derived as `HMAC-SHA256(secret, "flixer-streamer:admin:v1")` (`src/api/streams/streamsService.ts`) | `APP_SECRET` |
+| flixer → streamer (`STREAMER_INTERNAL_URL`) | `GET /streamer/admin/sessions`, `DELETE /streamer/admin/sessions/:id` with an admin key derived as `HMAC-SHA256(secret, "flixer-streamer:admin:v1")` (`src/api/streams/streamsService.ts`) | `APP_SECRET` |
 | streamer → flixer | `GET /api/streamer/media-roots`, signed with `x-streamer-timestamp` / `x-streamer-signature` (`src/api/mediaLibraries/streamerRootsController.ts`) so root IDs always match | `APP_SECRET` |
 | client → streamer | HS256 stream token issued by flixer (`src/api/playback/playbackService.ts`) | `APP_SECRET` |
 

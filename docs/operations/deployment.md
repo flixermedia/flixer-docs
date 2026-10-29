@@ -24,17 +24,12 @@ The reference deployment is `docker-compose.yml` in the `flixer` repository.
 
 | Path | Upstream | Notes |
 | --- | --- | --- |
-| `/api/` | api | 120s read timeout. |
-| `/api/live` | api | WebSocket upgrade, 1h timeout, no buffering. |
-| `/api/logs/stream` | api | WebSocket upgrade for the live log viewer. |
-| `/socket.io/` | api | WebSocket upgrade. |
-| `/stream/` | streamer | Range requests, no buffering, 1h timeouts. |
-| `/hls/`, `/info/` | streamer | |
-| `/lyrics/`, `/subtitles/` | streamer | |
+| `/api/` | api | WebSocket upgrades (including `/api/live`, `/api/logs/stream`, and `/api/socket.io/`); 1h timeouts and no buffering. |
+| `/streamer/` | streamer | Media, info, HLS, lyrics, subtitles, trickplay, health and admin routes; range requests, no buffering, 1h timeouts. |
 | `/` | web | Everything else. |
 
 :::caution
-If you put your own reverse proxy in front, it must forward WebSocket upgrades for `/api/live` and `/api/logs/stream`, or the admin dashboard will not update live.
+If you put your own reverse proxy in front, it must forward WebSocket upgrades for `/api/live`, `/api/logs/stream`, and `/api/socket.io/`, or live updates will not connect.
 :::
 
 ## TLS
@@ -43,7 +38,7 @@ The bundled proxy listens on plain HTTP. Terminate TLS in front of it and set `F
 
 ## Health checks
 
-`api` (TCP 8081), `streamer` (`/healthz`), `web` (HTTP `/`) and `proxy` (`/healthz`) have container health checks; the proxy waits for the first three.
+`api` (TCP 8081), `streamer` (`/streamer/healthz`), `web` (HTTP `/`) and `proxy` (`/healthz`) have container health checks; the proxy waits for the first three.
 
 ## Volumes
 

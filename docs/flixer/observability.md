@@ -62,7 +62,7 @@ flixer has **no dedicated HTTP health endpoint**. Instead:
 | Component | Check |
 | --- | --- |
 | api container (compose) | TCP connect to port `8081`. |
-| streamer | `GET /healthz` on `8091`. |
+| streamer | `GET /streamer/healthz` on `8091`. |
 | proxy (nginx) | `GET /healthz` returns `204`. |
 | HTTP liveness of flixer | `GET /api/version` returns `{version}` and is public, so it works as a cheap probe. |
 

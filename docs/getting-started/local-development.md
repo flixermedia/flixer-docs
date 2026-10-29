@@ -24,7 +24,7 @@ Developer/
 | --- | --- | --- |
 | flixer-web (Vite) | `5174` | HTTPS in dev when certificates exist in `certs/`. |
 | flixer API | `8083` | Vite proxies `/api` here. |
-| flixer-streamer | `8091` | Vite proxies `/stream`, `/info`, `/hls`, `/lyrics`, `/subtitles` here. |
+| flixer-streamer | `8091` | Vite proxies `/streamer` here (media, info, HLS, lyrics, subtitles, trickplay, health and admin routes). |
 | flixer-indexer | `8092` | Internal; only flixer talks to it. |
 | Redis | `6379` | Indexer task queue. |
 

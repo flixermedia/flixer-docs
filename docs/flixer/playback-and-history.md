@@ -28,14 +28,14 @@ Response:
     "container": "mkv",
     "directPlay": false,
     "mediaSourceId": "item-uuid",
-    "streamUrl": "/stream/<jwt>"
+    "streamUrl": "/streamer/stream/<jwt>"
   },
   "expiresAt": "2025-01-01T12:00:00.000Z"
 }
 ```
 
 - `directPlay` is `false` only for `.mkv` (the streamer must remux/transcode).
-- `streamUrl` is prefixed with `STREAMER_PUBLIC_URL` (empty by default → same-origin relative URL, routed by the proxy to the streamer).
+- `streamUrl` is prefixed with `STREAMER_PUBLIC_URL` (empty by default → same-origin `/streamer/stream/...` URL, routed by the proxy to the streamer).
 - The token is an **HS256 JWT** valid **1 hour** with claims `iss: flixer`, `aud: flixer-streamer`, `sub`/`userId`, `mediaItemId`, `mediaSourceId`, `playSessionId`, `mediaLocator`, `iat`, `exp`, `jti`. Signed with `APP_SECRET` (≥ 32 bytes, otherwise issuing fails).
 - `mediaLocator` is `{rootId, relativePath}` encrypted with **AES-256-GCM** (key = SHA-256 over an AAD label + secret, 12-byte nonce, AAD `flixer-streamer:media-locator:v1`), so file paths never reach the client.
 
@@ -43,7 +43,7 @@ Sample videos: `GET /api/playback/samples` scans every library folder for `.mp4/
 
 ## Active streams
 
-`GET /api/admin/streams` and `DELETE /api/admin/streams/:sessionId` proxy flixer-streamer's `/admin/sessions` (admin key derived from `APP_SECRET`; 5 s timeout; `502` unreachable/error, `504` timeout). Sessions are enriched with the user's `username` / `displayName`.
+`GET /api/admin/streams` and `DELETE /api/admin/streams/:sessionId` proxy flixer-streamer's `/streamer/admin/sessions` (admin key derived from `APP_SECRET`; 5 s timeout; `502` unreachable/error, `504` timeout). Sessions are enriched with the user's `username` / `displayName`.
 
 ## Watch progress and history
 
@@ -100,11 +100,11 @@ Setting `indexer_subtitles` (admin, via `PUT /api/settings/indexer_subtitles`):
 - `apiKey` and `password` are returned masked (`********`); sending the mask back keeps the stored value.
 - After saving, flixer calls the indexer's `/internal/settings/reload`.
 
-Subtitles are served to players by flixer-streamer (`/subtitles/...` is routed to it by the proxy), not by this backend.
+Subtitles are served to players by flixer-streamer (`/streamer/subtitles/...` is routed to it by the proxy), not by this backend.
 
 ## Lyrics
 
-The flixer backend has **no lyrics endpoint**. Lyrics are served by flixer-streamer (`/lyrics/...`, proxied by nginx) – see the streamer docs.
+The flixer backend has **no lyrics endpoint**. Lyrics are served by flixer-streamer (`/streamer/lyrics/...`, proxied by nginx) – see the streamer docs.
 
 ## Chapters and skippable segments
 

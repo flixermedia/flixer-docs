@@ -67,7 +67,7 @@ HTTP `503` is returned on upgrade when 50 clients are already connected.
 - `LiveService.invalidate(...topics)` forces an immediate refresh; controllers call it after mutations (devices, streams, shares, indexer actions, overview).
 
 :::caution Proxy note
-`deploy/proxy/nginx.conf` defines dedicated WebSocket-upgrade locations (`Upgrade`/`Connection` headers, 1 h read timeout, no buffering) for `= /api/live`, `= /api/logs/stream` and `/socket.io/`. Any other reverse proxy in front of flixer must do the same, or live updates will not connect.
+`deploy/proxy/nginx.conf` handles WebSocket upgrades for `/api/live`, `/api/logs/stream`, and `/api/socket.io/` in its shared `/api/` location (upgrade headers, 1 h timeouts, no buffering). Any other reverse proxy in front of flixer must do the same, or live updates will not connect.
 :::
 
 ## `/api/logs/stream` – live logs
