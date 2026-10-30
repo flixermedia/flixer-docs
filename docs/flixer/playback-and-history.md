@@ -110,10 +110,11 @@ The flixer backend has **no lyrics endpoint**. Lyrics are served by flixer-strea
 
 `POST /api/playback/items/:id/playback-info` also returns `chapters` (`{title, startMs, endMs}`, from the container's chapter list, which the indexer's probe stage stores) and `segments` (`{type, startMs, endMs, source}`). The player draws chapter ticks on the seek bar and offers a "Skip Intro/Recap/Credits" button inside a segment, with an optional auto-skip (intros, recaps, previews and breaks; never credits).
 
-Segment types are `intro`, `recap`, `credits`, `preview` and `commercial`. One segment per type is returned, chosen by source priority:
+Segment types are `intro`, `recap`, `credits`, `preview` and `commercial`. Playback reads saved timing data from Flixer's database; no external segment service is queried while starting playback. One segment per type is returned, chosen by source priority:
 
 1. `manual`: set by an admin with `PUT /api/admin/media/items/:id/segments/:type` (`{startMs, endMs}`) and removed with `DELETE` on the same path.
-2. `skipme`: crowd-sourced timestamps from the SkipMe.db URL set under Admin → Providers (default `https://database.skipme.deno.net/v3`; empty disables lookups) (`POST /movies` with the series or movie ids, season/episode and file duration; the entry whose duration is within 5 s and with the most submissions wins). Failed or empty lookups are not retried for 24 hours.
-3. `chapter`: chapter titles matched against built-in patterns (for example "Opening", "Previously on", "Credits"). Computed on read, never stored.
+2. `theintrodb`: public intro and credits timings synced by flixer-indexer from TheIntroDB v4. The provider is enabled by default, requires no API key, and can be disabled under Admin → Providers. Movie and episode syncs use separate queues; existing media is backfilled and future indexer updates are queued automatically.
+3. `plugin`: timings supplied by an independently installed and enabled segment-provider plugin.
+4. `chapter`: chapter titles matched against built-in patterns (for example "Opening", "Previously on", "Credits"). Computed on read, never stored.
 
 Items indexed before chapter support need a refresh to gain chapters.

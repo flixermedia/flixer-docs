@@ -8,9 +8,14 @@ description: Running Flixer in production with Docker Compose and nginx.
 
 The reference deployment is `docker-compose.yml` in the `flixer` repository.
 
+Compose uses the existing shared `APP_SECRET` published for the streamer as the
+Meilisearch master key. No extra secret is needed. Meilisearch stays internal to the
+stack and persists its data under `${DATA_DIR}/meilisearch`.
+
 | Container | Image | Internal port | Notes |
 | --- | --- | --- | --- |
 | `api` | `ghcr.io/flixermedia/flixer` | 8081 | Mounts media read-only plus data folders under `DATA_DIR`. |
+| `meilisearch` | `getmeili/meilisearch:v1.12` | 7700 | Private media search index; persistent data in `DATA_DIR/meilisearch`. |
 | `streamer` | `ghcr.io/flixermedia/flixer-streamer` | 8091 | Media read-only; transcode cache. |
 | `indexer` | `ghcr.io/flixermedia/flixer-indexer` | 8092 | Media read-write so artwork can be stored next to media (use `:ro` if every library uses cache image storage). |
 | `postgres` | `postgres:16-alpine` | 5432 | Bundled database; data is stored in `DATA_DIR/database`. |
@@ -49,6 +54,7 @@ The bundled proxy listens on plain HTTP. Terminate TLS in front of it and set `F
 | `${DATA_DIR}/config` | SQLite bootstrap config and encryption key. |
 | `${DATA_DIR}/cache` | Media images, people photos, themes, subtitles and trickplay. |
 | `${DATA_DIR}/database` | Bundled PostgreSQL data. |
+| `${DATA_DIR}/meilisearch` | Rebuildable media search index. |
 | `${DATA_DIR}/backups` | Backup archives. |
 
 ## SMB and observability overlays
