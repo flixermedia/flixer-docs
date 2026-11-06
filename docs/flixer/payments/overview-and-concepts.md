@@ -80,6 +80,12 @@ Administrators can issue a full or partial refund on a paid order. A full refund
 
 Administrators can also grant a user complimentary access to any scope. A grant can be indefinite or expire after a specified number of hours, and can be revoked later.
 
+## Receipt emails
+
+When mail is configured, every successful payment sends a Flixer-themed receipt. It shows the poster of the purchased or rented title, the rental period, the price breakdown with any coupon and tax, and a button that opens the title. The poster is served through a signed link, so it loads in mail clients without a login.
+
+The receipt is the `purchase-receipt` email template. Edit it under the mail templates settings like any other template. Its **Template keys** panel lists every key you can use, grouped as everywhere (`appName`, `appUrl`, `year`), account and payments (`title`, `kind`, `detail`, `posterUrl`, `subtotal`, `discount`, `tax`, `total`, `orderId`, `date`, `watchUrl`, `watchLabel`). `{{#if name}}...{{/if}}` blocks show their content only when that value is set.
+
 ## Provider and API setup
 
 Configure a provider and confirm its credentials before enabling payments. See [Stripe setup](./stripe-setup.md), [Square setup](./square-setup.md), [security notes](./security.md), and [troubleshooting](./troubleshooting.md).
