@@ -26,12 +26,11 @@ flixer is configured through **environment variables** (loaded from the process 
 | `PASSKEY_RP_NAME` | `Flixer` | No | WebAuthn relying-party display name. |
 | `PASSKEY_ORIGINS` | `https://localhost:5173` | No | Comma-separated allowed WebAuthn origins. |
 | `STREAM_MEDIA_ROOT` | falls back to `MEDIA_PATH`, then `../flixer-data/media` | No | Media root folder(s). Accepts a **JSON array** of paths, a list separated by the OS path delimiter (`;` on Windows, `:` elsewhere) or a single path. |
-| `DATA_PATH` | `./data` (or `DATA_DIR` in dev) | No | Root for avatars, SQLite config, cache, SMB mounts and backups. Avatars use `avatars/`, SQLite uses `config/`, media images use `cache/images/`, SMB mounts use `mounts/`, and backups use `backups/`. |
+| `DATA_PATH` | `./data` (or `DATA_DIR` in dev) | No | Root for avatars, SQLite config, cache, SMB mounts, backups and Logger data. Avatars use `avatars/`, SQLite uses `config/`, media images use `cache/images/`, SMB mounts use `mounts/`, backups use `backups/`, and Flixer Logger stores events under `logs/logger/`. |
 | `MEILISEARCH_URL` | `http://localhost:7700` | No | Optional media search index. In the development Compose stack use `http://meilisearch:7700` for the Compose API or `http://localhost:7700` for a native API. Search falls back to PostgreSQL when Meilisearch is unavailable. |
 | `MEILISEARCH_API_KEY` | Shared `APP_SECRET` | No | Optional override for the Meilisearch key. By default, Meilisearch reuses the shared secret already used by the streamer and indexer. |
 | `INDEXER_MAX_WRITES` | `3` | No | Max concurrent indexer write requests (`WorkLimiter`). |
 | `INDEXER_MAX_QUEUED_WRITES` | `200` | No | Waiting writes allowed before the API answers `429`. |
-| `LOG_DIR` | unset | No | If set, flixer writes JSON logs to `<LOG_DIR>/flixer.log` and tails `<LOG_DIR>/streamer.log` into the live log stream. |
 
 :::note
 SMTP is **not** configured through environment variables – it lives in the `smtp_*` database settings.
@@ -46,7 +45,6 @@ APP_SECRET=another-long-random-string-shared-with-streamer
 DATA_DIR=../flixer-data
 APP_URL=https://localhost:5173
 STREAM_MEDIA_ROOT=["D:/Media/Movies","D:/Media/Shows"]
-LOG_DIR=../flixer-data/logs
 MEILISEARCH_URL=http://localhost:7700
 ```
 
@@ -62,7 +60,7 @@ These are consumed by the Dockerfile, `processes.config.cjs` or compose files, n
 | `APP_VERSION` | – | Dockerfile build arg | Version label of the image. |
 | `HTTP_PORT` | `8080` | compose | Host port published by the proxy. |
 | `MAX_TRANSCODES`, `STREAMER_LOG_LEVEL`, `INDEXER_LOG_LEVEL` | – | compose | Passed to streamer/indexer. |
-| `DATA_DIR`, `MEDIA_PATH`, `LOG_PATH` | `../flixer-data/...` | compose | Host folders mounted into containers. |
+| `DATA_DIR`, `MEDIA_PATH` | `../flixer-data/...` | compose | Host folders mounted into containers. |
 
 `.env.example` also lists `FLIXER_PUBLIC_URL`, which the backend source does not read.
 

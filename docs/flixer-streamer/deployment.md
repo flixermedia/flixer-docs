@@ -53,6 +53,6 @@ Provide `APP_SECRET` and `FLIXER_URL` at runtime. Mount media read-only and ensu
 
 ## Logs and health
 
-Service logs are structured JSON to stdout. Set `LOG_LEVEL` to choose the minimum service log level. When `LOG_DIR` is set, the same JSON records are also written to `LOG_DIR/streamer.log`, rotated at 10 MiB with three backups (`.1`, `.2`, `.3`). FFmpeg stderr is parsed and forwarded at `FFMPEG_LOG_LEVEL`; process start/exit records include operational metadata. Avoid logging or proxying complete tokenized URLs.
+Service logs are structured JSON to stdout and are exported asynchronously to Flixer Logger when the service is enrolled. Set `LOG_LEVEL` to choose the minimum service log level. Logger delivery is best effort and does not block playback; use the container or process supervisor output for diagnostics during a Logger outage. FFmpeg stderr is parsed and forwarded at `FFMPEG_LOG_LEVEL`; process start/exit records include operational metadata. Avoid logging or proxying complete tokenized URLs.
 
 `GET /streamer/healthz` returns `200` with `status` and `activeTranscodes`; HEAD returns an empty `200`. It does not assert that Flixer roots have loaded or that FFmpeg is ready. The Docker health check therefore indicates process liveness only, not playback readiness.

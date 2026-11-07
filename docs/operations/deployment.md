@@ -15,6 +15,7 @@ stack and persists its data under `${DATA_DIR}/meilisearch`.
 | Container | Image | Internal port | Notes |
 | --- | --- | --- | --- |
 | `api` | `ghcr.io/flixermedia/flixer` | 8081 | Mounts media read-only plus data folders under `DATA_DIR`. |
+| `logger` | `ghcr.io/flixermedia/flixer-logger` | 8098 | Internal TLS only; Pebble data and checkpoints live under `DATA_DIR/logs/logger`. |
 | `meilisearch` | `getmeili/meilisearch:v1.12` | 7700 | Private media search index; persistent data in `DATA_DIR/meilisearch`. |
 | `streamer` | `ghcr.io/flixermedia/flixer-streamer` | 8091 | Media read-only; transcode cache. |
 | `indexer` | `ghcr.io/flixermedia/flixer-indexer` | 8092 | Media read-write so artwork can be stored next to media (use `:ro` if every library uses cache image storage). |
@@ -56,11 +57,13 @@ The bundled proxy listens on plain HTTP. Terminate TLS in front of it and set `F
 | `${DATA_DIR}/database` | Bundled PostgreSQL data. |
 | `${DATA_DIR}/meilisearch` | Rebuildable media search index. |
 | `${DATA_DIR}/backups` | Backup archives. |
+| `${DATA_DIR}/logs/logger` | Pebble event store, TLS files and checkpoints; do not copy the live Pebble directory. |
 
 ## SMB and observability overlays
 
 - `docker-compose.smb.yml` adds mount support for network shares.
-- `docker-compose.observability.yml` adds Loki, Alloy and Grafana for logs.
+- Use **Admin → Logging** for centralized search and live logs.
+- Logger enrollment and recovery are documented in the [Flixer Logger guide](../flixer/logger.md).
 
 ## Updating from the dashboard
 

@@ -16,7 +16,6 @@ This page summarises the variables that tie services together. Each service's ow
 | `APP_SECRET` | flixer, streamer, indexer | Must be identical everywhere. 32+ random bytes. |
 | `FLIXER_URL` | streamer, indexer | Base URL of the flixer API. |
 | `LOG_LEVEL` | streamer, indexer | `debug`, `info`, `warn`, `error`. |
-| `LOG_DIR` | flixer, streamer | Write JSON logs for Alloy/Loki (native dev). |
 
 ## flixer
 
@@ -26,13 +25,19 @@ This page summarises the variables that tie services together. Each service's ow
 | `JWT_SECRET` | Access-token signing. |
 | `FLIXER_PUBLIC_URL`, `HTTP_PORT` | Public address and published proxy port. |
 | `MEDIA_PATH` (Docker) / `STREAM_MEDIA_ROOT` | Root media folder(s); `STREAM_MEDIA_ROOT` accepts a JSON array natively. |
-| `DATA_DIR` | Host folder mounted at `/data` in containers (`DATA_PATH=/data` inside). Root for avatars, SQLite config, cache, logs, backups and the persistent Meilisearch index. |
+| `DATA_DIR` | Host folder mounted at `/data` in containers (`DATA_PATH=/data` inside). Root for avatars, SQLite config, cache, Flixer Logger data (`logs/logger/`), backups and the persistent Meilisearch index. |
 | `APP_URL`, `PASSKEY_RP_ID`, `PASSKEY_ORIGINS` | Passkey (WebAuthn) configuration; must match the browser address. |
 | `STREAMER_PUBLIC_URL`, `STREAMER_INTERNAL_URL`, `INDEXER_URL` | How flixer reaches the other services. |
 | `INDEXER_MAX_WRITES`, `INDEXER_MAX_QUEUED_WRITES` | Backpressure on indexer writes. |
 | `DATA_PATH` | Root for persistent application data; SMB mounts are stored under `mounts/` and backups under `backups/`. |
+| `LOGGER_VERSION` | Optional Compose image tag for `flixer-logger`; the default is `latest`. Logger storage and credentials are managed by Flixer, not by a Logger `.env` file. |
 | `MEILISEARCH_URL` | Optional Meilisearch endpoint for media search. Defaults to `http://localhost:7700`; in Compose use `http://meilisearch:7700`. |
 | `MEILISEARCH_API_KEY` | Optional override. Defaults to Flixer's shared `APP_SECRET`, also used by the streamer and indexer. |
+
+The bundled Compose file sets Logger's internal TLS certificate, bootstrap
+owner-file path, API endpoint and producer CA paths. Do not add owner or
+producer tokens to `.env`; configure the Logger connection in Flixer and
+manage producer credentials in Admin → Logging.
 
 Both Compose stacks use the same shared application secret for Meilisearch and the
 Flixer API; no additional search key is required.

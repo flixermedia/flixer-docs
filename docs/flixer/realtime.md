@@ -72,7 +72,7 @@ HTTP `503` is returned on upgrade when 50 clients are already connected.
 
 ## `/api/logs/stream` – live logs
 
-Code: `src/logs/liveLogSocketServer.ts`, `liveLogHub.ts`, `liveLogService.ts`, `streamerLogTailer.ts`.
+Code: `src/logs/liveLogSocketServer.ts`, `liveLogHub.ts`, `liveLogService.ts`.
 
 Protocol: send `{"type":"auth","token":"<access token>"}` first (5 s timeout). The server replies:
 
@@ -83,6 +83,6 @@ Protocol: send `{"type":"auth","token":"<access token>"}` first (5 s timeout). T
 
 - Same close codes (4401/4403, 1013, 1001) and 60 s re-validation; max **10** clients; send buffer limit 1 MiB.
 - `LiveLogHub` is an in-memory ring buffer of 500 entries fed by the `live` log appender (`liveLogAppender.ts`) – flixer's own logs.
-- If `LOG_DIR` is set, `StreamerLogTailer` polls `<LOG_DIR>/streamer.log` every 500 ms (survives rotation/truncation, reads the last 32 KiB at start) and republishes each JSON line with `app: "flixer-streamer"` unless the line has its own `app`. Non-JSON lines become `info` text.
 - Log levels are normalised to `debug | info | warn | error`; messages are truncated to 4000 chars.
+- Cross-service live and historical logs, including task output, are provided by **Admin → Logging** through Flixer Logger; this compatibility socket does not tail application log files.
 - nginx has a dedicated location with 1 h read timeout and `proxy_buffering off`.

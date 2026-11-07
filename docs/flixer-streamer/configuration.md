@@ -23,7 +23,6 @@ description: Environment variables, defaults, media-root ownership, and startup 
 | `TRANSCODE_DIR` | `./cache/transcode` | Present in configuration and documented as reserved for future use. Current progressive and HLS implementations pipe FFmpeg output and do not store transcodes here. |
 | `ALLOWED_ORIGINS` | Empty | Optional comma-separated exact browser origins. If empty, requests without an `Origin` are accepted, but a request supplying an origin is denied. CORS is not authorization. |
 | `LOG_LEVEL` | `info` | Minimum service log level: `debug`, `info`, `warn`/`warning`, or `error`. |
-| `LOG_DIR` | Empty | When non-empty, JSON logs are written to both stdout and `LOG_DIR/streamer.log`. The directory is created as needed. The file rotates at 10 MiB with three backups. |
 
 Invalid ports, a missing/short secret, invalid log levels, invalid FFmpeg log levels, or negative/non-numeric `MAX_TRANSCODES` prevent startup. See `.env.example` for a maintained sample; its secret value is deliberately a placeholder and must be replaced.
 

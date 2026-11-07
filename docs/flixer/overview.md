@@ -79,7 +79,7 @@ src/
     mediaLibraries/ media/ networkShares/ overview/ playback/
     preferences/ settings/ streams/ version/
 resources/emails/          HTML e-mail templates
-deploy/                    nginx proxy + observability (Loki/Alloy/Grafana) configs
+deploy/                    nginx proxy and Logger deployment configs
 scripts/                   kill-port, format, insomnia export, commit-message hook
 ```
 

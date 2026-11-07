@@ -60,4 +60,4 @@ Libraries are yours to define. Flixer does not assume folder names such as `Movi
 
 - Subtitles from OpenSubtitles: add credentials under the admin dashboard settings. See [Subtitles](../flixer-indexer/subtitles.md).
 - SMB network shares: use `docker-compose.smb.yml`. See [Network shares](../flixer-indexer/network-shares.md).
-- Logs in Grafana: `docker-compose.observability.yml`. See [Observability](../flixer/observability.md).
+- Logs in Admin → Logging: see [Flixer Logger](../flixer/logger.md).

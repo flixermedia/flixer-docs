@@ -36,7 +36,7 @@ The service starts its HTTP listener even while the media-root synchronization r
 | `internal/media` | Maintains root-ID-to-path mappings and rejects unsafe, missing, non-regular, or root-escaping file references. |
 | `internal/transcode` | Probes media, chooses a delivery mode, constructs FFmpeg argument arrays, streams process output, enforces the process limit, and tracks/cancels sessions. |
 | `internal/monitoring` | Optionally configures Sentry using settings fetched from Flixer and wraps logging/HTTP handlers. |
-| `internal/logfile` | Writes JSON logs to a size-rotated file and normalizes common log attributes. |
+| `internal/logging` | Normalizes structured stdout log attributes for consistent service output. |
 
 Tests live alongside implementations as `*_test.go` files in these packages. The Docker image definition is in `Dockerfile`; the image publishing workflow is `.github/workflows/docker.yml`.
 
