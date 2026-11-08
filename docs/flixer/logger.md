@@ -42,6 +42,20 @@ event inspection, Logger health/capacity, producer credentials and retention
 controls. Search and management calls are proxied through Flixer's authenticated
 Admin API; browsers do not receive Logger management credentials.
 
+The connection panel shows the management credential's expiry and whether
+renewal is manual, locally configured, or unavailable. For a locally managed
+connection, Flixer attempts renewal within 30 days of expiry; this indicates
+configuration, not a guarantee of success. Check Logger diagnostics if
+renewal fails. Manually paired credentials must be replaced before expiry.
+
+Signed-in Flixer Web clients report uncaught browser, promise and Vue errors
+through `POST /api/logs/web`. The API authenticates and rate-limits reports and
+exports them using its own application-bound `flixer-web` credential. Only the
+error category and a fixed error type are sent: messages, stack traces, URLs,
+user identifiers and other browser data are excluded. Reports before sign-in
+are not sent. Delivery is bounded and best effort; failures do not block the
+UI or replace Sentry reporting.
+
 Indexer task modals query Logger events using the exact task ID and physical
 queue. Events include `task_id`, `fields.task_queue` and a stable task trace
 ID. The previous Indexer Redis task-output route has been removed. Task records
