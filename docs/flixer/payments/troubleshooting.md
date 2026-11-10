@@ -17,6 +17,8 @@ description: Diagnose provider setup, checkout, webhook, and subscription access
 - Make sure the browser SDK uses the public configuration returned by `GET /api/payments/status`, and that its environment matches the provider credentials configured on the backend.
 - A new account must complete card setup whenever payments are enabled, even when registration itself has no fee.
 - If Stripe requires additional authentication, complete the card element flow and let the client call `POST /api/payments/orders/:orderId/confirm`.
+- Square card setup can request bank verification. If verification is cancelled or fails, retry the card form or use another card. If the bank still requires verification after the challenge, contact the administrator; completing the challenge does not guarantee that the subsequent charge will succeed.
+- Flixer reports common declines and verification failures in plain language. Administrators can check `PAYMENT_PROVIDER_ERROR` in the server logs for the provider's error codes and status, then consult the provider's dashboard for transaction details.
 - Check the user's order status and failure message in the admin order list. Verify that a default card and provider customer are present for subscription renewals.
 - For a free trial, the initial subscription charge may be zero; a card is still required as part of signup when payments are enabled.
 
