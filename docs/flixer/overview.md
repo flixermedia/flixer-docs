@@ -28,6 +28,7 @@ admin dashboard. For deployment-level settings, see
 [Configuration](./configuration.md). Useful operator guides:
 
 - [Authentication](./authentication.md)
+- [Sign in with Flixer](./connected-apps.md)
 - [Libraries and media](./libraries-and-media.md)
 - [Playback and history](./playback-and-history.md)
 - [Real-time updates](./realtime.md)

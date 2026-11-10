@@ -33,6 +33,9 @@ Use administrator accounts only for server management. Give users only the
 access they need, revoke sessions when a device should be signed out, and copy
 new API keys to a secure location when they are created.
 
+To let third-party applications use Flixer accounts, see
+[Sign in with Flixer](../flixer/connected-apps.md).
+
 For service status and log troubleshooting, see
 [Deployment and operations](../operations/deployment.md). For media-specific
 settings, see [Libraries and media](../flixer/libraries-and-media.md).
