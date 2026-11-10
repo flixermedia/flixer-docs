@@ -1,10 +1,10 @@
 ---
-sidebar_position: 11
-title: Flixer Logger
+sidebar_position: 2
+title: Operations
 description: Logger deployment, configuration, API, performance, troubleshooting and recovery.
 ---
 
-# Flixer Logger
+# Logger operations
 
 `flixer-logger` is the platform's structured event service. It uses Pebble for
 persistent storage and serves deployment-scoped search, statistics and live

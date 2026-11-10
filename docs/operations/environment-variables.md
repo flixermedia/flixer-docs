@@ -1,66 +1,32 @@
 ---
 sidebar_position: 2
 title: Environment variables
-description: Cross-service summary of the most important environment variables.
+description: The main settings used by a Flixer installation.
 ---
 
 # Environment variables
 
-This page summarises the variables that tie services together. Each service's own configuration page is the complete reference:
-[flixer](../flixer/configuration.md), [flixer-web](../flixer-web/configuration.md), [flixer-streamer](../flixer-streamer/configuration.md), [flixer-indexer](../flixer-indexer/configuration.md).
+Most settings can be entered in the setup wizard or managed in Flixer. The
+installer's `.env.example` lists the options for that release; avoid copying
+old values from another installation.
 
-## Shared
-
-| Variable | Services | Meaning |
-| --- | --- | --- |
-| `APP_SECRET` | flixer, streamer, indexer | Must be identical everywhere. 32+ random bytes. |
-| `FLIXER_URL` | streamer, indexer | Base URL of the flixer API. |
-| `LOG_LEVEL` | streamer, indexer | `debug`, `info`, `warn`, `error`. |
-
-## flixer
-
-| Variable | Meaning |
+| Variable | Purpose |
 | --- | --- |
-| `DATABASE_URL`, `DATABASE_POOL_MAX` | Postgres connection and pool size. |
-| `JWT_SECRET` | Access-token signing. |
-| `FLIXER_PUBLIC_URL`, `HTTP_PORT` | Public address and published proxy port. |
-| `MEDIA_PATH` (Docker) / `STREAM_MEDIA_ROOT` | Root media folder(s); `STREAM_MEDIA_ROOT` accepts a JSON array natively. |
-| `DATA_DIR` | Host folder mounted at `/data` in containers (`DATA_PATH=/data` inside). Root for avatars, SQLite config, cache, Flixer Logger data (`logs/logger/`), backups and the persistent Meilisearch index. |
-| `APP_URL`, `PASSKEY_RP_ID`, `PASSKEY_ORIGINS` | Passkey (WebAuthn) configuration; must match the browser address. |
-| `STREAMER_PUBLIC_URL`, `STREAMER_INTERNAL_URL`, `INDEXER_URL` | How flixer reaches the other services. |
-| `INDEXER_MAX_WRITES`, `INDEXER_MAX_QUEUED_WRITES` | Backpressure on indexer writes. |
-| `DATA_PATH` | Root for persistent application data; SMB mounts are stored under `mounts/` and backups under `backups/`. |
-| `LOGGER_VERSION` | Optional Compose image tag for `flixer-logger`; the default is `latest`. Logger storage and credentials are managed by Flixer, not by a Logger `.env` file. |
-| `MEILISEARCH_URL` | Optional Meilisearch endpoint for media search. Defaults to `http://localhost:7700`; in Compose use `http://meilisearch:7700`. |
-| `MEILISEARCH_API_KEY` | Optional override. Defaults to Flixer's shared `APP_SECRET`, also used by the streamer and indexer. |
+| `DATA_DIR` | Persistent application data, including the bundled database, settings, cache, backups, and logs. Required by the standard Compose file. |
+| `MEDIA_PATH` | Host folder containing media. Libraries are created from folders inside it. |
+| `HTTP_PORT` | Host port for the bundled proxy. Defaults to `8080`. |
+| `DATABASE_URL` | Optional database connection override. The standard installation includes PostgreSQL. |
+| `APP_URL` | Public web address used by account and verification links. |
+| `PASSKEY_RP_ID` | Hostname used for passkeys. Match the address people use. |
+| `PASSKEY_ORIGINS` | Allowed browser origins for passkeys. Include the scheme and port when needed. |
+| `APP_SECRET` | Shared secret used by Flixer services. Keep the same value wherever the stack requires it. Changing it can invalidate encrypted settings and service tokens. |
+| `MAX_TRANSCODES` | Optional limit for simultaneous FFmpeg jobs. `0` means unlimited. |
+| `COMPOSE_PROFILES` | Optional Compose profiles, including `ai` for AI recommendations. |
 
-The bundled Compose file sets Logger's internal TLS certificate, bootstrap
-owner-file path, API endpoint and producer CA paths. Do not add owner or
-producer tokens to `.env`; configure the Logger connection in Flixer and
-manage producer credentials in Admin → Logging.
+Use the admin dashboard for SMTP, metadata provider credentials, subtitles,
+payments, and error reporting. These are not normally set in `.env`.
 
-Both Compose stacks use the same shared application secret for Meilisearch and the
-Flixer API; no additional search key is required.
-
-Email (SMTP), OpenSubtitles credentials and metadata provider keys are configured in the admin dashboard, not in `.env`.
-
-## flixer-streamer
-
-| Variable | Default | Meaning |
-| --- | --- | --- |
-| `PORT` | `8091` | Listen port. |
-| `FFMPEG_PATH`, `FFPROBE_PATH` | `ffmpeg`, `ffprobe` | Binaries. |
-| `MAX_TRANSCODES` | `0` | Concurrent ffmpeg jobs; 0 is unlimited. |
-| `ALLOWED_ORIGINS` | empty | Comma-separated CORS origins. |
-| `TRANSCODE_DIR` | `./cache/transcode` | Scratch space. |
-
-## flixer-indexer
-
-| Variable | Default | Meaning |
-| --- | --- | --- |
-| `PORT`, `ROLE` | `8092`, `all` | Listen port; `all`, `api` or `worker`. |
-| `REDIS_ADDR`, `REDIS_PASSWORD`, `REDIS_DB` | `localhost:6379` | Task queue. |
-| `CACHE_PATH` | `./cache` | Root of people, image, theme, subtitle and trickplay cache folders (in Docker, `/data/cache`). |
-| `CONCURRENCY_*` | see config page | Initial workers per queue; adjustable at runtime from the dashboard. |
-| `TMDB_API_KEY` and others | empty | Fallbacks; flixer settings take precedence. |
-| `FLIXER_MODE=stub` | unset | Run without flixer for testing. |
+For manual or native deployments, use the configuration page for the relevant
+service: [Flixer](../flixer/configuration.md), [Web](../flixer-web/configuration.md),
+[Streamer](../flixer-streamer/configuration.md), or
+[Indexer](../flixer-indexer/configuration.md).

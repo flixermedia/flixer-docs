@@ -87,7 +87,7 @@ When a user starts playback, flixer issues a **stream token** (a 1-hour HS256 JW
 
 ## Service-to-service signatures
 
-Both indexer↔flixer and streamer→flixer calls use `HMAC-SHA256(APP_SECRET, …)` over a timestamp (±5 min skew) – see [Overview](./overview.md#how-it-talks-to-the-other-services).
+Both indexer↔flixer and streamer→flixer calls use `HMAC-SHA256(APP_SECRET, …)` over a timestamp (±5 min skew); see the [security model](../architecture/security.md).
 
 ## Sentry public config
 

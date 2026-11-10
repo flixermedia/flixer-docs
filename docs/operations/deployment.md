@@ -1,86 +1,57 @@
 ---
 sidebar_position: 1
-title: Deployment
-description: Running Flixer in production with Docker Compose and nginx.
+title: Deployment and operations
+description: Run, secure, update, and back up a Flixer installation.
 ---
 
-# Deployment
+# Deployment and operations
 
-The reference deployment is `docker-compose.yml` in the `flixer` repository.
+For a new server, use the [official installer at get.flixer.dev](https://get.flixer.dev).
+It creates the Compose configuration, prepares storage, and starts the services.
+The [quick start](../getting-started/quick-start.md) covers platform
+requirements and first-run setup.
 
-Compose uses the existing shared `APP_SECRET` published for the streamer as the
-Meilisearch master key. No extra secret is needed. Meilisearch stays internal to the
-stack and persists its data under `${DATA_DIR}/meilisearch`.
+## What runs
 
-| Container | Image | Internal port | Notes |
-| --- | --- | --- | --- |
-| `api` | `ghcr.io/flixermedia/flixer` | 8081 | Mounts media read-only plus data folders under `DATA_DIR`. |
-| `logger` | `ghcr.io/flixermedia/flixer-logger` | 8098 | Internal TLS only; Pebble data and checkpoints live under `DATA_DIR/logs/logger`. |
-| `meilisearch` | `getmeili/meilisearch:v1.12` | 7700 | Private media search index; persistent data in `DATA_DIR/meilisearch`. |
-| `streamer` | `ghcr.io/flixermedia/flixer-streamer` | 8091 | Media read-only; transcode cache. |
-| `indexer` | `ghcr.io/flixermedia/flixer-indexer` | 8092 | Media read-write so artwork can be stored next to media (use `:ro` if every library uses cache image storage). |
-| `postgres` | `postgres:16-alpine` | 5432 | Bundled database; data is stored in `DATA_DIR/database`. |
-| `redis` | `redis:7-alpine` | 6379 | Append-only persistence. |
-| `web` | `ghcr.io/flixermedia/flixer-web` | 80 | Static frontend. |
-| `proxy` | built from `deploy/proxy` | 80 (published as `HTTP_PORT`) | nginx front door. |
+The standard stack includes the API, web app, streamer, indexer, PostgreSQL,
+Redis, Meilisearch, Flixer Logger, and the updater. AI recommendations and the
+TURN relay for calls are optional services. Payments are disabled until
+configured. See the [ecosystem guide](../ecosystem.md) for all repositories
+and optional components.
 
-## Proxy routing
+## Network and HTTPS
 
-`deploy/proxy/nginx.conf` routes by path:
+The bundled proxy listens on port `8080` by default. It routes the web app,
+API, and streamer through one address. For remote access, put a TLS reverse
+proxy in front of Flixer and forward WebSocket upgrades as well as regular
+HTTP traffic. Do not expose internal service ports directly to the internet.
 
-| Path | Upstream | Notes |
-| --- | --- | --- |
-| `/api/` | api | WebSocket upgrades (including `/api/live`, `/api/logs/stream`, and `/api/socket.io/`); 1h timeouts and no buffering. |
-| `/streamer/` | streamer | Media, info, HLS, lyrics, subtitles, trickplay, health and admin routes; range requests, no buffering, 1h timeouts. |
-| `/` | web | Everything else. |
+Set the public app address and passkey settings to match the URL people use:
+`FLIXER_PUBLIC_URL`, `APP_URL`, `PASSKEY_RP_ID`, and `PASSKEY_ORIGINS`.
+Passkeys require HTTPS outside localhost.
 
-:::caution
-If you put your own reverse proxy in front, it must forward WebSocket upgrades for `/api/live`, `/api/logs/stream`, and `/api/socket.io/`, or live updates will not connect.
-:::
+## Storage and backups
 
-## TLS
+- `DATA_DIR` holds Flixer's database, settings, cache, backups, and logs.
+- `MEDIA_PATH` is the root containing your media folders.
+- Back up the database and important Flixer configuration before upgrades.
+  Keep media backups according to your own storage plan.
+- Prefer the admin **Updates** page for updates. It creates a database backup
+  before applying component versions and can roll back known releases.
+- Do not copy Flixer Logger's live Pebble directory as a backup. Use Logger's
+  checkpoint procedure in the [Logger guide](../flixer-logger/operations.md).
 
-The bundled proxy listens on plain HTTP. Terminate TLS in front of it and set `FLIXER_PUBLIC_URL`, `APP_URL` and `PASSKEY_ORIGINS` to the `https://` address. Passkeys require a secure context.
+Keep both paths persistent and make sure the Docker host has enough free space.
+The [environment guide](./environment-variables.md) summarizes the settings;
+the installation's `.env` and the [Flixer README](https://github.com/flixermedia/flixer)
+are authoritative for the selected release.
 
-## Health checks
+## Network shares and logs
 
-`api` (TCP 8081), `streamer` (`/streamer/healthz`), `web` (HTTP `/`) and `proxy` (`/healthz`) have container health checks; the proxy waits for the first three.
+Add SMB shares through the installer or **Admin → Libraries**. Docker requires
+the corresponding supported Compose configuration and mount permissions; see
+[network shares](../flixer-indexer/network-shares.md).
 
-## Volumes
-
-| Volume | Purpose |
-| --- | --- |
-| `redis-data` | Indexer queue persistence. |
-| `${DATA_DIR}/avatars` | User avatars. |
-| `${DATA_DIR}/config` | SQLite bootstrap config and encryption key. |
-| `${DATA_DIR}/cache` | Media images, people photos, themes, subtitles and trickplay. |
-| `${DATA_DIR}/database` | Bundled PostgreSQL data. |
-| `${DATA_DIR}/meilisearch` | Rebuildable media search index. |
-| `${DATA_DIR}/backups` | Backup archives. |
-| `${DATA_DIR}/logs/logger` | Pebble event store, TLS files and checkpoints; do not copy the live Pebble directory. |
-
-## SMB and observability overlays
-
-- `docker-compose.smb.yml` adds mount support for network shares.
-- Use **Admin → Logging** for centralized search and live logs.
-- Logger enrollment and recovery are documented in the [Flixer Logger guide](../flixer/logger.md).
-
-## Updating from the dashboard
-
-Admin → Updates shows the running version of the API, web, streamer and indexer next to the newest GitHub release of each, and can update everything with one click. The updater is part of the standard stack, so a plain `docker compose up -d` starts it. There is no token to configure: Flixer and the updater derive it from the app secret they already share.
-
-Only the [flixer-updater](https://github.com/flixermedia/flixer-updater) sidecar mounts `/var/run/docker.sock`; Flixer just calls its token-protected HTTP API on the internal network. It acts only when an admin presses **Update all** (or turns on automatic updates, which are off by default). The project folder is mounted into it at the same path as on the host (`PROJECT_DIR`, default the current directory) so it can run `docker compose`.
-
-An update runs these steps, shown live in the dashboard:
-
-1. A `pg_dump` of the database (using the database URL Flixer is configured with) is written to `$DATA_DIR/backups` (the latest 5 are kept). If it fails, nothing is changed.
-2. The new release of each outdated component is pinned in the updater's state volume (`versions.env`, read through the `${*_VERSION:-latest}` image tags) and the images are pulled.
-3. Services are recreated one at a time (streamer, indexer, web, API) and each must become healthy.
-4. If one fails, the previous releases are restored automatically and the run is reported as rolled back. A component whose previous version was not a known release (for example a `latest` or dev build) cannot be restored and is reported.
-5. The proxy is restarted so it finds the new containers.
-
-The dashboard is unavailable for a minute while the API restarts. Restore the database from a backup with `pg_restore` if a release changed the schema.
-
-Pinned versions persist, so a manual `docker compose up` without the updater's `versions.env` falls back to `latest`. The updater cannot update itself: pull a new `flixer-updater` image manually.
-
-Images built before this feature do not report their version, so those components show as not reachable until they are updated manually once.
+Use **Admin → Logging** for searchable application events. For immediate
+container diagnostics, run `docker compose logs -f <service>` from the
+installation directory.

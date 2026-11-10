@@ -23,7 +23,7 @@ queried from Logger by task ID and physical queue. Task output is not stored in
 Redis. Producer queues are bounded and delivery is best effort, so a Logger
 outage or overloaded queue can cause drops without blocking application work.
 
-See the [Logger guide](./logger.md) for API routes, limits, deployment,
+See the [Logger guide](../flixer-logger/operations.md) for API routes, limits, deployment,
 troubleshooting, backup and recovery.
 
 ## Application output

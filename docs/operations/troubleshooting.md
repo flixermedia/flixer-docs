@@ -1,42 +1,51 @@
 ---
 sidebar_position: 3
 title: Troubleshooting
-description: Common problems and where to look.
+description: Quick checks for common installation, scanning, and playback problems.
 ---
 
 # Troubleshooting
 
-## Admin dashboard does not update live
+Start with **Admin → Overview** and the service logs:
 
-The browser connects to `wss://<host>/api/live`. If the proxy does not forward upgrades for that path the sockets fail and panels only show their first load. Make sure your proxy matches [the bundled nginx config](./deployment.md#proxy-routing). A close code `4401`/`4403` means the session is invalid or not an admin; sign in again.
+```bash
+docker compose ps
+docker compose logs -f <service>
+```
 
-## "OpenSubtitles is not set up"
+Run these commands from the Flixer installation directory. Check that Docker is
+running and that the affected service is healthy before changing configuration.
 
-Add the API key, username and password in the admin dashboard settings (or the indexer's `OPENSUBTITLES_*` environment as fallback). See [Subtitles](../flixer-indexer/subtitles.md).
+## Can't open Flixer
 
-## A library has no folders to choose
+- Check `docker compose ps` for stopped or unhealthy services.
+- Confirm the proxy port in `.env` (default `8080`) is reachable and not used
+  by another service.
+- For a reverse proxy, forward the API and streamer paths and enable WebSocket
+  upgrades.
 
-Root folders come from `MEDIA_PATH` / `STREAM_MEDIA_ROOT` and are validated against what flixer can read. In Docker confirm the host path is mounted at `/media`. Native: check the value is a path or a JSON array of paths.
+## A library is empty or a scan fails
 
-## Playback fails or stalls
+- Confirm the media folder exists and is mounted where Flixer expects it.
+- Create libraries from folders inside the configured media root.
+- Check that the indexer can read the same paths as Flixer and that Redis is
+  healthy.
+- For SMB, verify the share is connected and that the required Docker mount
+  configuration is enabled.
 
-1. Check `APP_SECRET` matches in flixer and the streamer.
-2. Confirm `ffmpeg` and `ffprobe` are available to the streamer (`FFMPEG_PATH`).
-3. Look at `MAX_TRANSCODES`; at the limit new transcodes wait or fail.
-4. Check the streamer log and the admin **Streams** tab for the session.
+## Playback does not start
 
-## Subtitles out of sync after seeking
+- Confirm the streamer can read the media folder.
+- Check the streamer logs for FFmpeg or FFprobe errors.
+- Make sure Flixer and the streamer use the same `APP_SECRET`.
+- Check the **Admin → Streams** panel and configured transcode limit.
 
-Restart flixer-streamer so the keyframe-aligned seek is active, then hard-reload the page. See [Playback modes](../flixer-streamer/playback-modes.md).
+## Passkeys or email do not work
 
-## Scans stall or the UI is sluggish during a scan
+- Passkeys need HTTPS and matching `APP_URL`, `PASSKEY_RP_ID`, and
+  `PASSKEY_ORIGINS` values.
+- Email verification requires a working SMTP configuration in the admin
+  settings.
 
-Lower indexer worker counts in the dashboard or `INDEXER_MAX_WRITES` on flixer. The indexer retries on 429. See [Queues and workers](../flixer-indexer/queues-and-workers.md).
-
-## Saved SMB share passwords stopped working
-
-They are encrypted with a key derived from `APP_SECRET`. If it changed, re-enter them.
-
-## Passkeys do not register
-
-`APP_URL`, `PASSKEY_RP_ID` and `PASSKEY_ORIGINS` must match the exact browser address, and the site must be served over HTTPS (localhost excepted).
+For service-specific settings, see the relevant
+[configuration guide](./environment-variables.md) or the service's README.

@@ -1,31 +1,33 @@
 ---
 sidebar_position: 1
 title: Introduction
-description: What Flixer is and how the documentation is organised.
+description: What Flixer does and where to find the guides you need.
 ---
 
 # Introduction
 
-Flixer is a self-hosted media server for movies, TV shows and music. You point it at folders on disk, declare libraries over them in the admin dashboard, and stream to any browser.
+Flixer is a self-hosted media server for organizing and watching your own
+movies, shows, and music. It scans folders you choose, builds a library, and
+serves playback through a web app.
 
-It is made of four services plus Postgres and Redis:
+## What makes up Flixer
 
-| Service | Language | Role |
-| --- | --- | --- |
-| [flixer](../flixer/overview.md) | TypeScript (Ts.ED, Fastify) | The API: accounts, libraries, media metadata, watch history, admin and live updates. |
-| [flixer-web](../flixer-web/overview.md) | TypeScript (Vue 3) | The PWA users and admins open in the browser. |
-| [flixer-streamer](../flixer-streamer/overview.md) | Go + ffmpeg | Serves media bytes: direct play, remux, transcode, HLS, subtitles and lyrics. |
-| [flixer-indexer](../flixer-indexer/overview.md) | Go | Scans libraries, probes files, fetches metadata, artwork and subtitles. |
+The self-hosted application uses the Flixer API, web app, streamer, and
+indexer, plus PostgreSQL, Redis, Meilisearch, [Logger](../flixer-logger/overview.md), and the
+updater. [AI recommendations](../flixer-ai/overview.md) and a TURN relay for
+calls are optional Compose services. [Plugins](../flixer-plugins/overview.md)
+are managed by Flixer, and Flixer Cloud is a separate website rather
+than a dependency of the self-hosted server.
 
-## Key ideas
+See the [ecosystem guide](../ecosystem.md) for all repositories and their
+roles.
 
-- **Libraries live in the database.** An admin creates libraries (Movies, TV Shows, Music, anything) in the dashboard and picks folders for each from the root folders the server exposes. See [Libraries and media](../flixer/libraries-and-media.md).
-- **Root folders are configuration.** `MEDIA_PATH` (Docker) or `STREAM_MEDIA_ROOT` (native) names the folder or folders everything is read from. It may be a JSON array so roots can sit on different disks.
-- **The streamer never trusts the browser.** Playback uses short-lived signed stream tokens shared between flixer and flixer-streamer through `APP_SECRET`.
-- **The admin dashboard is live.** Overview, streams, devices, indexer queues and network shares update over a single WebSocket. See [Real-time updates](../flixer/realtime.md).
+## Choose a guide
 
-## Where to go next
+- **New installation:** [Quick start](./quick-start.md)
+- **Configure or maintain a server:** [Operations](../operations/deployment.md)
+- **Understand how services work together:** [Architecture](../architecture/overview.md)
+- **Develop Flixer:** [Local development](./local-development.md)
 
-1. [Quick start](./quick-start.md) to run it.
-2. [Architecture overview](../architecture/overview.md) to see how the pieces fit.
-3. The per-service sections for details, and [Operations](../operations/deployment.md) for running it in production.
+For installation, use the official installer at
+[get.flixer.dev](https://get.flixer.dev).

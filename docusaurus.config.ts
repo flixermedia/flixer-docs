@@ -1,10 +1,11 @@
 import { themes as prismThemes } from 'prism-react-renderer'
 import type { Config } from '@docusaurus/types'
 import type * as Preset from '@docusaurus/preset-classic'
+import type { Configuration as WebpackConfiguration } from 'webpack'
 
 const config: Config = {
   title: 'Flixer Docs',
-  tagline: 'Self-hosted media streaming for movies, TV and music',
+  tagline: 'Install, run, and understand Flixer',
   favicon: 'img/favicon.png',
 
   url: process.env.DOCS_URL ?? 'https://docs.flixer.dev',
@@ -25,6 +26,23 @@ const config: Config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
+
+  plugins: [
+    () => ({
+      name: 'development-asset-cache-control',
+      configureWebpack(): WebpackConfiguration & {
+        devServer: { headers: Record<string, string> }
+      } {
+        return {
+          devServer: {
+            headers: {
+              'Cache-Control': 'no-store',
+            },
+          },
+        }
+      },
+    }),
+  ],
 
   themes: ['@docusaurus/theme-mermaid'],
 
@@ -55,13 +73,24 @@ const config: Config = {
       title: 'Flixer',
       logo: { alt: 'Flixer', src: 'img/logo.svg' },
       items: [
-        { to: '/getting-started/introduction', label: 'Getting started', position: 'left' },
-        { to: '/architecture/overview', label: 'Architecture', position: 'left' },
-        { to: '/flixer/overview', label: 'Backend', position: 'left' },
-        { to: '/flixer-web/overview', label: 'Web', position: 'left' },
-        { to: '/flixer-streamer/overview', label: 'Streamer', position: 'left' },
-        { to: '/flixer-indexer/overview', label: 'Indexer', position: 'left' },
+        { to: '/getting-started/quick-start', label: 'Get started', position: 'left' },
         { to: '/operations/deployment', label: 'Operations', position: 'left' },
+        { to: '/ecosystem', label: 'Ecosystem', position: 'left' },
+        {
+          type: 'dropdown',
+          label: 'Components',
+          position: 'left',
+          items: [
+            { to: '/architecture/overview', label: 'Architecture' },
+            { to: '/flixer/overview', label: 'Backend' },
+            { to: '/flixer-web/overview', label: 'Web app' },
+            { to: '/flixer-streamer/overview', label: 'Streamer' },
+            { to: '/flixer-indexer/overview', label: 'Indexer' },
+            { to: '/flixer-ai/overview', label: 'AI' },
+            { to: '/flixer-logger/overview', label: 'Logger' },
+            { to: '/flixer-plugins/overview', label: 'Plugins' },
+          ],
+        },
         { to: '/reference/glossary', label: 'Reference', position: 'left' },
       ],
     },
@@ -71,10 +100,15 @@ const config: Config = {
         {
           title: 'Services',
           items: [
-            { label: 'flixer', to: '/flixer/overview' },
-            { label: 'flixer-web', to: '/flixer-web/overview' },
-            { label: 'flixer-streamer', to: '/flixer-streamer/overview' },
-            { label: 'flixer-indexer', to: '/flixer-indexer/overview' },
+            { label: 'Architecture', to: '/architecture/overview' },
+            { label: 'Flixer ecosystem', to: '/ecosystem' },
+            { label: 'Backend', to: '/flixer/overview' },
+            { label: 'Web app', to: '/flixer-web/overview' },
+            { label: 'Streamer', to: '/flixer-streamer/overview' },
+            { label: 'Indexer', to: '/flixer-indexer/overview' },
+            { label: 'AI', to: '/flixer-ai/overview' },
+            { label: 'Logger', to: '/flixer-logger/overview' },
+            { label: 'Plugins', to: '/flixer-plugins/overview' },
           ],
         },
         {

@@ -1,63 +1,61 @@
 ---
 sidebar_position: 2
 title: Quick start
-description: Run the whole Flixer stack with Docker Compose.
+description: Install Flixer through the official installer and add your first library.
 ---
 
 # Quick start
 
-The fastest way to run everything is Docker Compose from the `flixer` repository. For hacking on the code see [Local development](./local-development.md).
+Use the official installer at [get.flixer.dev](https://get.flixer.dev). It
+downloads the current Compose files, guides you through installation choices,
+and starts the Flixer stack.
 
-## Prerequisites
+## Requirements
 
-- Docker with Compose v2.
-- A PostgreSQL database reachable from the containers (the compose file does not start one).
-- A folder containing your media, for example `Movies/`, `TV Shows/` and `Music/` subfolders.
+- **macOS:** Docker Desktop and Docker Compose.
+- **Linux:** Docker Engine and the Compose plugin. Automatic Docker
+  installation is available on Debian and Ubuntu.
+- **Windows:** WSL 2 with Ubuntu (or another supported WSL distribution) and a
+  local Docker Engine installed inside WSL. Docker Desktop is not supported by
+  the Windows installer.
 
-## 1. Configure
+## Install
 
-```bash
-cd flixer
-cp .env.example .env
-```
-
-Edit `.env` and set at least:
-
-| Variable | What to put |
-| --- | --- |
-| `DATABASE_URL` | Your Postgres connection string. |
-| `JWT_SECRET` | A random secret of 32 or more bytes. |
-| `APP_SECRET` | A different random secret of 32 or more bytes. Shared by flixer, the streamer and the indexer. |
-| `FLIXER_PUBLIC_URL`, `APP_URL`, `PASSKEY_RP_ID`, `PASSKEY_ORIGINS` | The address users type in the browser. Passkeys only work when these match. |
-| `MEDIA_PATH` | Host path of the root media folder. |
-
-Generate a secret with:
+On macOS or supported Linux, run:
 
 ```bash
-node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+curl -fsSL https://get.flixer.dev | bash
 ```
 
-## 2. Start
+On Windows, download and run the PowerShell installer:
 
-```bash
-docker compose up -d
+```powershell
+Invoke-WebRequest -UseBasicParsing https://get.flixer.dev/install.ps1 -OutFile install-flixer.ps1
+powershell -ExecutionPolicy Bypass -File .\install-flixer.ps1
 ```
 
-This starts `api`, `streamer`, `indexer`, `redis`, `web` and an nginx `proxy`. The proxy publishes `HTTP_PORT` (default `8080`).
+The Windows installer uses WSL's local Linux Docker Engine. If needed, install
+Ubuntu and Docker Engine inside WSL before running it:
 
-## 3. Create your admin account and libraries
+```powershell
+wsl --install -d Ubuntu
+```
 
-1. Open `http://localhost:8080` and register. Follow the first-run steps shown in the app.
-2. Open **Admin dashboard → Libraries** and click **Add library**.
-3. Give it a name, a type (movies, TV or music) and choose one or more folders from the offered root folders.
-4. Press **Scan**. Progress appears live on the Libraries and Overview tabs.
+The installer prompts for the installation and storage locations, media
+folder, and optional features. AI is enabled by default and may download
+models. To review all installer options, open [get.flixer.dev](https://get.flixer.dev)
+or [get.flixer.dev/install.ps1](https://get.flixer.dev/install.ps1).
 
-:::tip
-Libraries are yours to define. Flixer does not assume folder names such as `Movies` exist; it only offers whatever is inside your root media folders.
-:::
+## Finish setup
 
-## 4. Optional extras
+1. Open the address printed by the installer (default: `http://localhost:8080`).
+2. Follow the setup wizard to connect a database and create the first
+   administrator. The standard installation includes PostgreSQL and Redis.
+3. In **Admin → Libraries**, create a library from folders under your media
+   root and start a scan.
+4. When scanning finishes, browse a title and start playback.
 
-- Subtitles from OpenSubtitles: add credentials under the admin dashboard settings. See [Subtitles](../flixer-indexer/subtitles.md).
-- SMB network shares: use `docker-compose.smb.yml`. See [Network shares](../flixer-indexer/network-shares.md).
-- Logs in Admin → Logging: see [Flixer Logger](../flixer/logger.md).
+Flixer does not require folder names such as `Movies` or `Music`. Create
+libraries from the folders that actually exist in your media root.
+
+For ongoing maintenance, see [Deployment and operations](../operations/deployment.md).

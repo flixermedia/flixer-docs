@@ -1,10 +1,10 @@
 ---
-sidebar_position: 12
-title: Plugins
+sidebar_position: 2
+title: Runtime and permissions
 description: Plugin manifests, repository catalogs, installation safety, permissions and current runtime support.
 ---
 
-# Plugins
+# Runtime and permissions
 
 Flixer's plugin manager is being introduced in stages. It stores repository and installation metadata in Flixer's PostgreSQL database and stores packages and plugin-owned data under `DATA_PATH/plugins`. The official catalog is `https://github.com/flixermedia/flixer-plugins`.
 
