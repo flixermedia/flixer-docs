@@ -37,7 +37,7 @@ description: Home discovery, browsing and search, media details, account setting
 
 The passkey tab (`PasskeysSection.vue`) lists, adds, and removes WebAuthn credentials and can require a passkey for sign-in. Registration/removal and disabling the requirement use confirmation/password dialogs as needed. Browser support is checked with SimpleWebAuthn; the browser credential API requires a secure context. Passkey login and second-factor flows are presented in the authentication UI.
 
-There is no ordinary-user device-management tab in `/settings`. The **administrator** Devices panel at `/admin?tab=devices` lists sessions for all users, can sign out another device, and manages API keys; see [Admin dashboard](./admin-dashboard.md).
+The **Encrypted Chat** section of `/settings` lists trusted chat devices and lets users revoke other devices. If the current device was revoked or is no longer registered, sign-in still works, but encrypted chat history cannot be synchronized on that device. Use another trusted device or contact an administrator; Flixer does not silently re-enable a revoked device. The separate **administrator** Devices panel at `/admin?tab=devices` lists sessions for all users, can sign out another device, and manages API keys; see [Admin dashboard](./admin-dashboard.md).
 
 ## Watch progress and history
 
