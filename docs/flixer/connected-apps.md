@@ -42,7 +42,6 @@ applications may request:
 | `roles` | `roles`, an array containing the account role (`admin` or `user`). |
 | `groups` | `groups`, an array containing the role-derived group `flixer:admin` or `flixer:user`. These are not independent group memberships. |
 | `offline_access` | A refresh token for continued access after the user leaves. |
-| `subscription` | `flixer_subscription_active`, a boolean, when subscription sharing is enabled for the application. |
 
 Claims are available through the userinfo endpoint when their scopes are
 approved. For example, an approved request might return:
@@ -51,8 +50,7 @@ approved. For example, an approved request might return:
 {
   "sub": "user-id",
   "roles": ["user"],
-  "groups": ["flixer:user"],
-  "flixer_subscription_active": true
+  "groups": ["flixer:user"]
 }
 ```
 
@@ -61,18 +59,6 @@ To receive a refresh token, request `offline_access` and explicitly include
 reuse of a previously used refresh token revokes its grant. Refresh tokens and
 grants expire after at most 30 days, so applications must be prepared to ask the
 user to sign in again.
-
-Subscription sharing is **off by default** for each application. An
-administrator can allow it in the OAuth applications dashboard; the application
-must request the `subscription` scope and the user must approve it. The boolean
-is true when any subscription grants access, including a paid period or
-past-due grace period. It does not disclose a plan or payment details, and does
-not indicate access granted by one-time purchases or other policies.
-
-Disabling subscription sharing removes that permission from saved approvals
-and revokes all authorizations and tokens for that application, so its users
-will need to authorize it again. The application may retain information it
-already received.
 
 ## Access Flixer data
 
@@ -94,6 +80,15 @@ removes it from saved approvals and revokes that application's tokens.
 | `progress:read` | `GET /api/oauth/me/progress` | Viewing progress and completion. |
 | `history:read` | `GET /api/oauth/me/history` | Listening history; video progress is in the separate progress endpoint. |
 | `preferences:read` | `GET /api/oauth/me/preferences` | The user's language preference. |
+
+To determine subscription status, request `subscriptions:read` and follow all
+pages: the account is subscribed when at least one entry has `active: true`.
+This includes paid periods and eligible past-due grace periods, but not access
+granted by purchases or other policies.
+
+Upgrading from the earlier subscription claim removes its saved approvals and
+revokes tokens for applications that used or enabled that claim. Those
+applications must request `subscriptions:read` and obtain approval again.
 
 These are Flixer-specific OAuth scopes, not standard OIDC claims. Request the
 resource indicator `<issuer>/resource` in the authorization request. For example:
