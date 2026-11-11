@@ -8,7 +8,7 @@ description: WASI provider plugin contract, capability names, execution limits a
 
 The indexer loads only plugin modules that Flixer reports as enabled through its signed `/api/indexer/settings` response. Plugin files are mounted read-only at `PLUGINS_PATH` (default `/data/plugins/installed`). A plugin failure is isolated to that provider call; built-in providers and unrelated plugins continue through the existing registry.
 
-Flixer can query the signed `GET /internal/plugins` endpoint for the latest settings-reload result. Each record reports `registered` or `error`; `registered` means the provider was added to the registry, not that every future provider invocation will succeed. Failures during individual calls are returned through the normal provider error path and do not remove the module from the registry.
+Flixer can query the signed `GET /internal/plugins` endpoint for the latest settings-reload result. Each record includes per-target registration status for `flixer`, `flixer-indexer`, and `flixer-streamer`; a working target remains registered if another target fails. Registration does not guarantee every invocation succeeds.
 
 ## WASI execution
 
@@ -29,9 +29,9 @@ The indexer executes `flixer-indexer` and backend `flixer` targets as WASI comma
 
 Supported methods are `movie`, `series`, `season`, `episode`, `album`, and `images`. Successful metadata calls return `{"result": {"ids": {}, "meta": {}, "images": []}}`; image calls return `{"result": []}`. A no-match response is `{"error": {"code": "not_found", "message": "..."}}`. Other errors are logged and treated as that provider's failed attempt.
 
-Capability names are `indexer.provider.movie`, `indexer.provider.series`, `indexer.provider.season`, `indexer.provider.episode`, `indexer.provider.album`, and `indexer.provider.images`. The indexer registers only methods declared in the plugin's catalog capabilities.
+Capability names are `indexer.provider.movie`, `indexer.provider.series`, `indexer.provider.season`, `indexer.provider.episode`, `indexer.provider.album`, and `indexer.provider.images`. The indexer registers only methods declared in the plugin's catalog capabilities. A plugin may additionally declare the corresponding `.replace` capability, such as `indexer.provider.movie.replace`, and request administrator approval for `indexer.provider.override`. Approved replacements run before built-in providers; other providers remain available as fallbacks. Without that approval, replacement ordering is ignored.
 
-The runtime caps module size at 16 MiB, memory at 256 WASM pages, request and response data at 1 MiB, and execution at three seconds per call. It provides no filesystem preopens, environment variables, or network host imports. Thus third-party modules cannot access media paths or make outbound requests through this runtime. A future network capability must be implemented as a host-mediated, policy-enforced API before plugins can use it.
+The runtime caps module size at 16 MiB, memory at 256 WASM pages, request and response data at 1 MiB, and execution at three seconds per invocation. It provides no filesystem preopens, environment variables, or network host imports. A module may return `hostCalls` and a `continuation`, and receives `hostResults` in a subsequent invocation. Up to four rounds of eight calls are supported within a 30-second total deadline. `http.get`, `http.post`, and `http.request` use Flixer's approved `network.http.<hostname>` or `network.http.any` permissions and its public HTTPS restrictions. `settings.get` returns only that plugin's settings, including its configured secrets, and requires approved `settings.read`. Other host operations are unavailable to indexer providers.
 
 ## Backend route modules
 
@@ -41,4 +41,4 @@ Flixer exposes authenticated `POST /api/plugins/{pluginId}/{operation}` routes. 
 
 ## Current limitations
 
-The current SDK is a protocol contract, not a complete language SDK. Streamer and web targets cannot be enabled yet. Backend route modules receive no host-mediated data or persistence APIs; applications requiring database access, event subscriptions, or durable plugin state still need those APIs implemented. Per-invocation health metrics, publisher signatures, and the three official feature migrations are still pending.
+The current SDK is a protocol contract, not a complete language SDK. Backend modules have permission-gated host APIs for storage, HTTP and structured database access; event subscriptions are not implemented. Streamer and web targets have bounded contracts described in the [runtime guide](../flixer-plugins/runtime.md). Per-invocation health metrics, publisher signatures, and the three official feature migrations remain pending.

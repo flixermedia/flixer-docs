@@ -13,13 +13,17 @@ plugins from **Admin → Plugins** in Flixer.
 
 ## Available plugins
 
-| Plugin | What it does |
-| --- | --- |
-| `flixer.skipmedb` | Adds crowd-sourced intro, recap, credits, and preview timestamps from SkipMe.db. |
-| `flixer.example` | Reference backend plugin showing an authenticated route, plugin storage, and a permissioned HTTP call. |
+| Plugin            | What it does                                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| `flixer.skipmedb` | Adds crowd-sourced intro, recap, credits, and preview timestamps from SkipMe.db.                       |
+| `flixer.example`  | Reference backend plugin showing an authenticated route, plugin storage, and a permissioned HTTP call. |
 
 Releases are immutable: a new version is published instead of overwriting an
 old one.
+
+Catalogue entries can include optional `icon` and `banner` paths relative to
+`repository.json`. PNG, JPEG, WebP and GIF images up to 5 MiB are supported;
+Flixer displays them in the admin plugin list.
 
 ## Install a plugin
 
@@ -38,15 +42,15 @@ access. Uninstalling keeps plugin data so a reinstall can restore it.
 flixer-plugins/
 ├── repository.json   # catalogue index and release versions
 ├── schemas/          # repository and plugin manifest JSON schemas
-└── plugins/          # plugin sources (example, skipmedb)
+└── plugins/          # plugin sources and releases
 ```
 
 ## Build a plugin
 
-Start from [`plugins/example`](https://github.com/flixermedia/flixer-plugins/tree/main/plugins/example).
-Its `build.sh` compiles with `GOOS=wasip1 GOARCH=wasm`, packages the plugin,
-and updates the catalogue digest and size. Then validate against the schemas and
-add a new release to `repository.json`.
+See [`plugins/oauth`](https://github.com/flixermedia/flixer-plugins/tree/main/plugins/oauth)
+for a working plugin. Its `build.sh` compiles with `GOOS=wasip1 GOARCH=wasm`
+and packages an immutable release. Validate against the schemas and add the
+release digest and size to `repository.json`.
 
 Manifest fields, permissions, host APIs, and limits are covered in
 [Runtime and permissions](./runtime.md); indexer provider plugins are described
