@@ -49,9 +49,9 @@ Sample videos: `GET /api/playback/samples` scans every library folder for `.mp4/
 
 Stored in `watch_progress` (one row per user + item). `src/api/media/mediaHomeService.ts`:
 
-| Endpoint | Behaviour |
-| --- | --- |
-| `GET /api/media/items/:id/progress` | `{ positionSeconds, completed }` (position is `0` when completed). |
+| Endpoint                            | Behaviour                                                                                                                  |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/media/items/:id/progress` | `{ positionSeconds, completed }` (position is `0` when completed).                                                         |
 | `PUT /api/media/items/:id/progress` | Body `{ positionSeconds, durationSeconds }` (integers ≥ 0), `204`. Only for `movie`, `episode`, `video` (`404` otherwise). |
 
 Rules when saving:
@@ -59,6 +59,18 @@ Rules when saving:
 - `completed` when `duration > 0` and `position ≥ 92 %` of duration; the stored position is then reset to `0`.
 - A position under **20 s** is ignored unless a row already exists.
 - Upsert on `(user_id, item_id)`.
+
+### Playback history
+
+`GET /api/user-media/history?offset=0&limit=25` returns the signed-in user's video, live TV, and music sessions, newest first. Consecutive sessions for the same item, series, album, or live channel are grouped before pagination; an intervening item starts a separate group. Episode groups show the series and track groups show the album. The API defaults to 200 groups per page and accepts a maximum of 200; the web interface requests 25. Existing viewing and listening events are copied into durable history when the migration runs. Where no session exists, the most recent legacy watch-progress or listening record supplies an approximate activity entry. New video and live sessions are recorded alongside viewing analytics; music sessions are recorded when listening starts. History remains until the user removes entries, clears it, deletes the account, or the corresponding library item is removed. `DELETE /api/user-media/history/:id` removes every session in the selected group and `DELETE /api/user-media/history` clears all entries. Deleting history does not reset watch progress or administrative analytics. Late reports from a deleted viewing session do not recreate it.
+
+### Personal lists and recommendations
+
+`/api/user-media/watch-later` is a private per-user video list, separate from favorites. `/api/user-media/queue` stores the user's ordered Up Next video queue across reloads and devices. `/api/user-media/collections` manages owner-created video collections; collections start private, and public collections are visible only where the owner's profile is visible and the viewer is permitted to see the media. Item mutations and ordering are owner-only.
+
+`GET /api/user-media/automatic-collections` groups movies using the `collection` metadata populated from TMDb and NFO files. It returns only box sets with at least two movies visible to the requesting user. `GET /api/user-media/automatic-collections/:id` returns their visible movies in release order; automatic collections are read-only and their links do not bypass media access restrictions.
+
+Recommendation dismissals are stored per user. Dismissed items are removed from cached and fresh API results, and provide a negative signal during future AI recommendation refreshes. Users can restore dismissed items; existing cached rankings update when the recommendation cache refreshes.
 
 ### Continue watching
 
@@ -68,32 +80,40 @@ Part of `GET /api/media/home`: unfinished rows (`completed = false`) newest firs
 
 `GET /api/media/home` returns:
 
-| Field | Content |
-| --- | --- |
-| `libraries` | Each library with `itemCount` (top-level items) and a `cover` image from its 12 newest items. |
-| `featured` | Up to 5 recent movies/series (from 40 candidates) that have a backdrop, with tagline/overview/rating/runtime. |
-| `continueWatching` | See above. |
-| `recentMovies`, `recentShows`, `recentAlbums` | 20 newest of each type. |
+| Field                                         | Content                                                                                                       |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `libraries`                                   | Each library with `itemCount` (top-level items) and a `cover` image from its 12 newest items.                 |
+| `featured`                                    | Up to 5 recent movies/series (from 40 candidates) that have a backdrop, with tagline/overview/rating/runtime. |
+| `continueWatching`                            | See above.                                                                                                    |
+| `recentMovies`, `recentShows`, `recentAlbums` | 20 newest of each type.                                                                                       |
 
 Also: `GET /api/media/search?q=&type=` (min 2 chars, title/sort-title `ILIKE`, prefix matches first, max 60) and `GET /api/media/browse/:kind?sort=&offset=&limit=` (`sort`: `added` default, `title`, `year`; `limit` ≤ 100, default 48).
+
+Browse and search accept filters for genre, release year, cast, studio, runtime in minutes, HDR format, minimum video height, and audio language code. These filters use indexed metadata; titles without the relevant metadata cannot match that filter. Technical filters apply to the selected item's own technical data, so a series without technical data does not inherit it from its episodes. Search uses PostgreSQL for the additional metadata filters.
 
 ## Subtitles
 
 Subtitle files are owned by flixer-indexer; flixer proxies admin actions through signed calls (`src/api/media/subtitleService.ts`). Only `movie`, `episode`, `video` items are eligible (`400` otherwise).
 
-| Endpoint (admin) | Indexer call |
-| --- | --- |
-| `GET /api/admin/media/items/:id/subtitles` | `POST /internal/subtitles/list` → `{ tracks, configured }` |
+| Endpoint (admin)                                 | Indexer call                                                                                               |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `GET /api/admin/media/items/:id/subtitles`       | `POST /internal/subtitles/list` → `{ tracks, configured }`                                                 |
 | `POST …/subtitles/search` `{query?, languages?}` | `/internal/subtitles/search` (60 s timeout) – sends title, year, season/episode, provider ids, series info |
-| `POST …/subtitles/download` `{fileId, language}` | `/internal/subtitles/download` → `{ file }` |
-| `DELETE …/subtitles?file=` | `/internal/subtitles/delete` |
+| `POST …/subtitles/download` `{fileId, language}` | `/internal/subtitles/download` → `{ file }`                                                                |
+| `DELETE …/subtitles?file=`                       | `/internal/subtitles/delete`                                                                               |
 
 ### OpenSubtitles settings
 
 Setting `indexer_subtitles` (admin, via `PUT /api/settings/indexer_subtitles`):
 
 ```json
-{ "apiKey": "", "username": "", "password": "", "languages": ["en", "pt-BR"], "autoFetch": true }
+{
+  "apiKey": "",
+  "username": "",
+  "password": "",
+  "languages": ["en", "pt-BR"],
+  "autoFetch": true
+}
 ```
 
 - `languages`: ≤ 10 codes matching `^[a-z]{2,3}(-[A-Za-z]{2,4})?$`; `autoFetch` boolean (default true).

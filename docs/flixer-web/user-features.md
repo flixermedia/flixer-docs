@@ -22,6 +22,8 @@ description: Home discovery, browsing and search, media details, account setting
 
 `SearchView.vue` reads the query from `?q=`, focuses the search field on mount, and writes edits back into the URL. Search starts at two trimmed characters, is debounced by 250 ms, and is sent to `/media/search?q=...`; changing the query aborts the previous request. The input is capped at 100 characters. Results show the item type/year and link to media details.
 
+**Collections** is available in the main navigation and combines automatically generated movie box sets with the user's custom collections. The browser supports filtering, search, and sorting. Collections with one visible item are hidden from the browser; empty custom collections remain available to build. A custom collection with one item can still be opened by its direct link or selected when adding another item.
+
 ## Media details
 
 `MediaItemView.vue` loads `/media/items/:id`. It renders available artwork and metadata (tagline, overview, rating, genres, studios, runtime, technical details, and cast), then adapts its child list to the item:
@@ -41,7 +43,9 @@ The **Encrypted Chat** section of `/settings` lists trusted chat devices and let
 
 ## Watch progress and history
 
-The player overlay best-effort loads `/media/items/:id/progress` before playback and passes the saved position as the start time. While playing, progress is sent to `PUT /media/items/:id/progress` every 15 seconds and on pause, end, or player teardown. The home API supplies `continueWatching` cards from the user's saved progress. The Admin Overview also displays recent playback activity. There is **no separate watch-history route or history screen** in the current router.
+The player overlay best-effort loads `/media/items/:id/progress` before playback and passes the saved position as the start time. While playing, progress is sent to `PUT /media/items/:id/progress` every 15 seconds and on pause, end, or player teardown. The home API supplies `continueWatching` cards from the user's saved progress. **Settings → Playback → History** lists the signed-in user's video, live TV, and music activity in pages of 25. Consecutive sessions for the same item or channel appear together, and consecutive episodes or tracks are shown as their series or album. Removing an entry removes that group. The Admin Overview separately displays playback analytics.
+
+**Watch Later** is a private list, separate from favorites, shown on Home when it contains items. Playable video pages can append a title to **Up Next**; the account-backed queue appears on Home and in the video player, survives navigation and reloads, can be reordered, and takes priority over automatic next-episode playback outside watch parties. Custom **Collections** can be shared when made public, subject to the owner's profile visibility and each viewer's media access. Recommendation cards can be dismissed and restored from the recommendations row on Home.
 
 ## Theme and language
 
