@@ -41,7 +41,7 @@ The multi-stage `Dockerfile` defaults to `node:26.12.0-alpine` for the build. It
 
 `deploy/nginx.conf` serves `/usr/share/nginx/html` and falls back to `/index.html` for unknown paths, enabling Vue Router history-mode URLs. It contains **no** `/api`, `/stream`, `/info`, `/hls`, `/subtitles`, or `/lyrics` upstream locations, no TLS listener, and no WebSocket proxy. The container therefore only serves the static frontend. A production reverse proxy/ingress or companion routing layer must make the API and streamer paths available at the frontend origin (or build with an appropriate absolute `VITE_API_BASE_URL` for the API, while also arranging streamer routing). Configure HTTPS and WebSocket forwarding in that deployment layer as required by the backend topology.
 
-The GitHub Actions workflow `.github/workflows/docker.yml` builds and publishes `ghcr.io/flixermedia/flixer-web` on pushes to `main` and manual dispatch. It tags `latest` and a `sha-*` tag, and creates the package-version tag/release when that version has not previously been published. The locales workflow separately validates translations.
+The GitHub Actions workflow `.github/workflows/docker.yml` builds and publishes `flixermedia/flixer-web` (and `ghcr.io/flixermedia/flixer-web`) on pushes to `main` and manual dispatch. It tags `latest` and a `sha-*` tag, and creates the package-version tag/release when that version has not previously been published. The locales workflow separately validates translations.
 
 ## Other scripts and configuration
 

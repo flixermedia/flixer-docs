@@ -31,7 +31,7 @@ npm run start:prod       # NODE_ENV=production node dist/index.js
 
 `dist/index.js` is an SSR bundle of `src/index.ts` built by Vite (target node24, sourcemaps, no minify).
 
-`docker-compose.dev.yml` builds web and streamer from sibling folders (no indexer/redis); `docker-compose.yml` runs the published GHCR images (`ghcr.io/flixermedia/{flixer,flixer-streamer,flixer-indexer,flixer-web}`) behind the nginx proxy.
+`docker-compose.dev.yml` builds web and streamer from sibling folders (no indexer/redis); `docker-compose.yml` runs the published Docker Hub images (`flixermedia/{flixer,flixer-streamer,flixer-indexer,flixer-web}`) behind the nginx proxy.
 
 ## npm scripts
 
@@ -67,7 +67,7 @@ Existing specs: `src/api/indexer/indexerAuth.spec.ts` and `src/live/liveHub.spec
 
 ## Commits and releases
 
-A Husky `commit-msg` hook (`scripts/emoji-commit-message.mjs`) adds an emoji after the conventional commit type. Release flow (see `VERSION.md`): bump the version in `package.json`; on push to `main` a tag is created when none exists for that version and images are published to GHCR as `ghcr.io/flixermedia/flixer:X.Y.Z` and `:latest`.
+A Husky `commit-msg` hook (`scripts/emoji-commit-message.mjs`) adds an emoji after the conventional commit type. Release flow (see `VERSION.md`): bump the version in `package.json`; on push to `main` a tag is created when none exists for that version and images are published to Docker Hub (`flixermedia/flixer:X.Y.Z` and `:latest`) and GHCR (`ghcr.io/flixermedia/flixer:X.Y.Z` and `:latest`).
 
 ## Docker image
 
